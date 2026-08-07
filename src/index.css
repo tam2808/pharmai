@@ -1,0 +1,500 @@
+/* ============================================================
+   PharmAI — Design System v2 (Bright, Modern Medical)
+   TailwindCSS v4 with CSS-based configuration
+   ============================================================ */
+
+@import "tailwindcss";
+
+
+/* ============================================================
+   1. DESIGN TOKENS — CSS Custom Properties
+   ============================================================ */
+:root {
+  /* --- Primary Palette: Sky Blue Medical --- */
+  --color-bg: #F0F9FF;                 /* Xanh trời nhạt, sáng, y tế */
+  --color-bg-alt: #FFFFFF;             /* Trắng tinh khiết */
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F8FAFB;
+
+  --color-primary: #0EA5E9;            /* Sky Blue 500 */
+  --color-primary-dark: #0284C7;       /* Sky Blue 600 */
+  --color-primary-darker: #0369A1;     /* Sky Blue 700 */
+  --color-primary-light: #E0F2FE;      /* Sky Blue 100 */
+  --color-primary-lighter: #F0F9FF;    /* Sky Blue 50 */
+  --color-primary-hover: #0284C7;
+
+  /* --- Accent: Emerald Green --- */
+  --color-accent: #10B981;             /* Emerald 500 */
+  --color-accent-dark: #059669;        /* Emerald 600 */
+  --color-accent-light: #D1FAE5;       /* Emerald 100 */
+  --color-accent-hover: #059669;
+
+  /* --- Tertiary: Violet (CTA) --- */
+  --color-violet: #8B5CF6;
+  --color-violet-light: #EDE9FE;
+
+  /* --- Neutral Grays --- */
+  --color-text-primary: #0F172A;       /* Slate 900 */
+  --color-text-secondary: #475569;     /* Slate 600 */
+  --color-text-muted: #94A3B8;         /* Slate 400 */
+  --color-border: #E2E8F0;             /* Slate 200 */
+  --color-border-light: #F1F5F9;       /* Slate 100 */
+
+  /* --- Status --- */
+  --color-error: #EF4444;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+
+  /* --- Gradients --- */
+  --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%);
+  --gradient-hero: linear-gradient(135deg, #EFF6FF 0%, #E0F2FE 40%, #ECFDF5 100%);
+  --gradient-cta: linear-gradient(135deg, #0EA5E9 0%, #6366F1 50%, #8B5CF6 100%);
+  --gradient-card-blue: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  --gradient-card-green: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  --gradient-card-violet: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+  --gradient-card-orange: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+
+  /* --- Shadows (Elevated, Modern) --- */
+  --shadow-xs: 0 1px 3px rgba(14, 165, 233, 0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card: 0 4px 6px -1px rgba(14, 165, 233, 0.06), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-hover: 0 10px 25px -5px rgba(14, 165, 233, 0.15), 0 4px 10px -3px rgba(14, 165, 233, 0.08);
+  --shadow-modal: 0 25px 50px -12px rgba(0,0,0,0.15);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.25);
+  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
+
+  /* --- Typography --- */
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* --- Border Radius --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* ============================================================
+   2. TAILWIND v4 THEME CONFIGURATION
+   ============================================================ */
+@theme {
+  --color-bg: var(--color-bg);
+  --color-bg-alt: var(--color-bg-alt);
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-darker: var(--color-primary-darker);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-lighter: var(--color-primary-lighter);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-accent: var(--color-accent);
+  --color-accent-dark: var(--color-accent-dark);
+  --color-accent-light: var(--color-accent-light);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-violet: var(--color-violet);
+  --color-violet-light: var(--color-violet-light);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-card: var(--shadow-card);
+  --shadow-hover: var(--shadow-hover);
+  --shadow-modal: var(--shadow-modal);
+  --shadow-glow: var(--shadow-glow);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+
+/* ============================================================
+   3. BASE STYLES
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  letter-spacing: 1.5px;
+}
+
+/* ============================================================
+   4. GOOGLE FONTS
+   (already imported at top of file)
+   ============================================================ */
+
+/* ============================================================
+   5. TYPOGRAPHY UTILITY CLASSES
+   ============================================================ */
+.text-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.text-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.text-h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.text-body-lg {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.text-caption {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.text-data {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   6. GLASSMORPHISM UTILITY
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-primary {
+  background: rgba(14, 165, 233, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+/* ============================================================
+   7. GRADIENT UTILITIES
+   ============================================================ */
+.gradient-hero {
+  background: var(--gradient-hero);
+}
+
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.gradient-cta {
+  background: var(--gradient-cta);
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cta {
+  background: linear-gradient(135deg, #fff 0%, #BAE6FD 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   8. ANIMATIONS & KEYFRAMES
+   ============================================================ */
+
+/* Float up-down */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Float slower */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(2deg); }
+  66% { transform: translateY(-4px) rotate(-1deg); }
+}
+
+/* Pulse ring */
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* Shimmer skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Ripple click */
+@keyframes ripple-anim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Slide in from bottom */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Spin slow */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Bounce gentle */
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Orb drift */
+@keyframes orbDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 15px) scale(0.97); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ============================================================
+   9. ANIMATION UTILITY CLASSES
+   ============================================================ */
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float 4s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.animate-float-delay-2 {
+  animation: float 5s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2s ease-out infinite;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
+
+.animate-bounce-soft {
+  animation: bounceSoft 2.5s ease-in-out infinite;
+}
+
+.animate-orb-drift {
+  animation: orbDrift 10s ease-in-out infinite;
+}
+
+/* ============================================================
+   10. SKELETON SHIMMER
+   ============================================================ */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #E2E8F0 25%,
+    #F1F5F9 50%,
+    #E2E8F0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   11. RIPPLE EFFECT
+   ============================================================ */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0);
+  animation: ripple-anim 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ============================================================
+   12. CARD HOVER UTILITIES
+   ============================================================ */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.card-glow:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* ============================================================
+   13. SECTION DECORATIVE BG
+   ============================================================ */
+.section-dots {
+  background-image: radial-gradient(circle, rgba(14, 165, 233, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.section-grid {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ============================================================
+   14. SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
+}
+
+/* ============================================================
+   15. FOCUS VISIBLE
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   16. ACCESSIBILITY
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   17. BADGE & PILL VARIANTS
+   ============================================================ */
+.badge-primary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.badge-accent {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent-dark);
+}
+
+.badge-warning {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+/* ============================================================
+   18. GRADIENT MESH BG (legacy support)
+   ============================================================ */
+.gradient-mesh {
+  background: var(--gradient-hero);
+}
