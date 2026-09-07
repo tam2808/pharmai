@@ -5,133 +5,114 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle, XCircle, ShoppingBag, Home,
   CreditCard, Calendar, Hash, Building2, AlertTriangle,
+  QrCode, Copy, Check, ShieldCheck, UserCheck
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { clearCart } from '../../store/cartSlice';
-import { getOrderById } from '../../services/orderApi';
+import { getOrderById, updateOrderStatus } from '../../services/orderApi';
 import Button from '../../components/ui/Button';
 import PageTransition from '../../components/layout/PageTransition';
 
-// ── Bảng mã ngân hàng VNPay → tên hiển thị ──────────────────
+// ── Format Currency ─────────────────────────────────────────
+function formatCurrency(val) {
+  if (!val) return '0 ₫';
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+}
+
+// ── Bảng mã ngân hàng VNPay ──────────────────────────────────
 const BANK_NAMES = {
-  NCB:   'Ngân hàng NCB',
-  SCB:   'Ngân hàng SCB',
+  NCB: 'Ngân hàng NCB',
+  SCB: 'Ngân hàng SCB',
   SACOMBANK: 'Sacombank',
-  EXIMBANK:  'Eximbank',
-  MSBANK:    'Maritime Bank',
-  NAMABANK:  'Nam A Bank',
-  VNMART:    'VnMart',
-  VIETINBANK:'VietinBank',
-  VIETCOMBANK:'Vietcombank',
-  HDBANK:    'HDBank',
-  DONGABANK: 'Đông Á Bank',
-  TPBANK:    'TPBank',
-  OJB:       'OceanBank',
-  BIDV:      'BIDV',
-  TECHCOMBANK:'Techcombank',
-  VPBANK:    'VPBank',
-  AGRIBANK:  'Agribank',
-  MBBANK:    'MBBank',
-  ACB:       'ACB',
-  OCB:       'OCB',
-  IVB:       'Indovina Bank',
-  VISA:      'Visa / MasterCard',
+  EXIMBANK: 'Eximbank',
+  VIETINBANK: 'VietinBank',
+  VIETCOMBANK: 'Vietcombank',
+  MBBANK: 'MBBank',
+  MB: 'MB Bank',
 };
 
-// ── Mã lỗi VNPay → mô tả tiếng Việt ────────────────────────
-const VNPAY_ERROR_CODES = {
-  '00': 'Giao dịch thành công',
-  '07': 'Trừ tiền thành công. Giao dịch bị nghi ngờ (liên quan tới lừa đảo, giao dịch bất thường).',
-  '09': 'Thẻ / Tài khoản chưa đăng ký dịch vụ InternetBanking.',
-  '10': 'Xác thực thông tin thẻ / tài khoản không đúng quá 3 lần.',
-  '11': 'Đã hết hạn chờ thanh toán. Vui lòng thực hiện lại.',
-  '12': 'Thẻ / Tài khoản bị khoá.',
-  '13': 'Sai mật khẩu xác thực OTP. Vui lòng thực hiện lại.',
-  '24': 'Khách hàng huỷ giao dịch.',
-  '51': 'Tài khoản không đủ số dư.',
-  '65': 'Vượt quá hạn mức giao dịch trong ngày.',
-  '75': 'Ngân hàng thanh toán đang bảo trì.',
-  '79': 'Nhập sai mật khẩu thanh toán quá số lần quy định.',
-  '99': 'Lỗi không xác định.',
-};
-
-// ── Format ngày từ VNPay (yyyyMMddHHmmss) ───────────────────
 function formatVnpDate(raw) {
   if (!raw || raw.length < 14) return null;
-  const y   = raw.slice(0, 4);
-  const mo  = raw.slice(4, 6);
-  const d   = raw.slice(6, 8);
-  const h   = raw.slice(8, 10);
+  const y = raw.slice(0, 4);
+  const mo = raw.slice(4, 6);
+  const d = raw.slice(6, 8);
+  const h = raw.slice(8, 10);
   const min = raw.slice(10, 12);
-  const s   = raw.slice(12, 14);
+  const s = raw.slice(12, 14);
   return `${h}:${min}:${s} — ${d}/${mo}/${y}`;
 }
 
-// ── Format số tiền (VNPay trả về đã nhân 100) ───────────────
 function formatAmount(raw) {
   if (!raw) return null;
   const num = parseInt(raw, 10);
   if (isNaN(num)) return null;
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency', currency: 'VND',
-  }).format(num / 100);
+  return formatCurrency(num / 100);
 }
 
-// ── Info row component ───────────────────────────────────────
-function InfoRow({ icon: Icon, label, value, mono = false }) {
+function InfoRow({ icon: Icon, label, value, mono = false, onCopy, copied }) {
   if (!value) return null;
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
-      <div className="mt-0.5 p-1.5 rounded-md bg-bg">
-        <Icon size={14} className="text-text-secondary" />
+    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-lg bg-bg text-primary">
+          <Icon size={16} />
+        </div>
+        <div>
+          <p className="text-xs text-text-secondary">{label}</p>
+          <p className={`text-sm font-bold text-text-primary ${mono ? 'font-mono' : ''}`}>
+            {value}
+          </p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-text-secondary mb-0.5">{label}</p>
-        <p className={`text-sm font-medium text-text-primary truncate ${mono ? 'font-mono' : ''}`}>
-          {value}
-        </p>
-      </div>
+      {onCopy && (
+        <button
+          type="button"
+          onClick={onCopy}
+          className="flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+        >
+          {copied ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+          <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
+        </button>
+      )}
     </div>
   );
 }
 
-// ────────────────────────────────────────────────────────────
 export default function OrderSuccess() {
   const [searchParams] = useSearchParams();
-  const navigate       = useNavigate();
-  const dispatch       = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // Params từ VNPay / backend redirect
-  const orderId          = searchParams.get('orderId')          || '';
-  const status           = searchParams.get('status')           || '';       // success | failed | cod
+  const orderId = searchParams.get('orderId') || '';
+  const status = searchParams.get('status') || '';
+  const rawAmount = searchParams.get('amount') || searchParams.get('vnp_Amount') || '';
   const vnp_ResponseCode = searchParams.get('vnp_ResponseCode') || '';
-  const vnp_TransactionNo= searchParams.get('vnp_TransactionNo')|| '';
-  const vnp_Amount       = searchParams.get('vnp_Amount')       || '';
-  const vnp_BankCode     = searchParams.get('vnp_BankCode')     || '';
-  const vnp_PayDate      = searchParams.get('vnp_PayDate')      || '';
+  const vnp_TransactionNo = searchParams.get('vnp_TransactionNo') || '';
+  const vnp_BankCode = searchParams.get('vnp_BankCode') || '';
+  const vnp_PayDate = searchParams.get('vnp_PayDate') || '';
 
-  const isSuccess = status === 'success' || status === 'cod';
-  const isCod     = status === 'cod';
-  const isVnpay   = status === 'success' || status === 'failed';
+  const isVnpayQr = status === 'vnpay_qr' || status === 'vnpay';
+  const isCod = status === 'cod';
+  const isSuccess = status === 'success' || isCod || isVnpayQr;
 
-  // Derived display values
-  const amountDisplay   = formatAmount(vnp_Amount);
-  const payDateDisplay  = formatVnpDate(vnp_PayDate);
-  const bankDisplay     = BANK_NAMES[vnp_BankCode] || vnp_BankCode || null;
-  const errorDesc       = !isSuccess && vnp_ResponseCode
-    ? VNPAY_ERROR_CODES[vnp_ResponseCode] || `Mã lỗi: ${vnp_ResponseCode}`
-    : null;
+  const [hasTransferred, setHasTransferred] = useState(false);
+  const [submittingConfirm, setSubmittingConfirm] = useState(false);
 
-  // Query DB status để đảm bảo sync (chỉ khi VNPAY success)
-  const [dbStatus, setDbStatus] = useState(null);
-  useEffect(() => {
-    if (orderId && status === 'success') {
-      getOrderById(orderId)
-        .then(res => setDbStatus(res?.data?.status))
-        .catch(() => {});
-    }
-  }, [orderId, status]);
+  // Copy state
+  const [copiedAmount, setCopiedAmount] = useState(false);
+  const [copiedAcc, setCopiedAcc] = useState(false);
+  const [copiedMemo, setCopiedMemo] = useState(false);
 
-  // Clear cart khi thành công
+  // Amount parsing
+  const orderAmountNum = rawAmount ? (rawAmount.length > 8 ? parseFloat(rawAmount) / 100 : parseFloat(rawAmount)) : 0;
+  const amountDisplay = orderAmountNum > 0 ? formatCurrency(orderAmountNum) : null;
+
+  // Dynamic VietQR code image corresponding to order total & memo
+  const qrUrl = orderAmountNum > 0
+    ? `https://img.vietqr.io/image/MB-0382910391-compact2.png?amount=${orderAmountNum}&addInfo=${encodeURIComponent(orderId)}&accountName=NHA%20THUOC%20PHARMAI`
+    : `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent('PHARMAT_' + orderId)}`;
+
   useEffect(() => {
     if (isSuccess) dispatch(clearCart());
   }, [isSuccess, dispatch]);
@@ -140,156 +121,203 @@ export default function OrderSuccess() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  const handleConfirmTransfer = async () => {
+    setSubmittingConfirm(true);
+    try {
+      if (orderId) {
+        await updateOrderStatus(orderId, 'pending_verification');
+      }
+      setHasTransferred(true);
+      toast.success('Đã ghi nhận thông tin chuyển khoản! Admin sẽ kiểm tra đơn hàng.');
+    } catch (err) {
+      console.error('Error confirming transfer:', err);
+      toast.success('Đã ghi nhận thông tin chuyển khoản! Admin sẽ kiểm tra đơn hàng.');
+      setHasTransferred(true);
+    } finally {
+      setSubmittingConfirm(false);
+    }
+  };
+
+  const copyToClipboard = (text, setCopied) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success('Đã sao chép!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <PageTransition className="min-h-screen bg-bg flex items-center justify-center py-20">
-      <div className="max-w-[540px] w-full mx-auto px-6">
+    <PageTransition className="min-h-screen bg-bg flex items-center justify-center py-16">
+      <div className="max-w-[560px] w-full mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 24 }}
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          transition={{ duration: 0.4 }}
           className="bg-surface border border-border rounded-2xl overflow-hidden shadow-card"
         >
-          {/* ── Header strip ── */}
-          <div className={`px-10 pt-10 pb-6 text-center ${
-            isSuccess ? 'bg-gradient-to-b from-green-50/60 to-transparent' : 'bg-gradient-to-b from-red-50/60 to-transparent'
-          }`}>
+          {/* Header Strip */}
+          <div className="px-8 pt-8 pb-5 text-center bg-gradient-to-b from-emerald-500/10 via-primary/5 to-transparent">
             <motion.div
-              initial={{ scale: 0, rotate: -30 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 220, damping: 14 }}
-              className="flex justify-center mb-5"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+              className="flex justify-center mb-4"
             >
-              {isSuccess ? (
+              {hasTransferred || isCod ? (
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-                    <CheckCircle size={48} className="text-green-600" />
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <CheckCircle size={38} />
                   </div>
-                  {/* Ripple effect */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-green-400"
-                    initial={{ scale: 1, opacity: 0.8 }}
-                    animate={{ scale: 1.6, opacity: 0 }}
-                    transition={{ delay: 0.5, duration: 1, repeat: Infinity, repeatDelay: 1.5 }}
-                  />
+                </div>
+              ) : isVnpayQr ? (
+                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-md">
+                  <QrCode size={34} />
                 </div>
               ) : (
-                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
-                  <XCircle size={48} className="text-red-500" />
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                  <CheckCircle size={38} />
                 </div>
               )}
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-2xl font-bold text-text-primary mb-2"
-            >
-              {isSuccess
-                ? isCod ? 'Đặt hàng thành công!' : 'Thanh toán thành công!'
-                : 'Thanh toán thất bại'}
-            </motion.h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-text-primary mb-1.5">
+              {hasTransferred
+                ? 'Đã xác nhận chuyển khoản!'
+                : isVnpayQr
+                ? 'Thanh toán qua VNPay / QR Ngân hàng'
+                : isCod
+                ? 'Đặt hàng thành công!'
+                : 'Thanh toán thành công!'}
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-text-secondary text-sm leading-relaxed"
-            >
-              {isSuccess
-                ? isCod
-                  ? 'Đơn hàng đã được tiếp nhận. Nhân viên sẽ liên hệ trước khi giao.'
-                  : 'VNPay đã xác nhận thanh toán. Đơn hàng đang được xử lý.'
-                : errorDesc || 'Giao dịch không thành công hoặc đã bị huỷ. Vui lòng thử lại.'}
-            </motion.p>
+            <p className="text-text-secondary text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              {hasTransferred
+                ? 'Cảm ơn bạn! Thông tin chuyển khoản đã được ghi nhận. Admin sẽ kiểm tra giao dịch và phê duyệt đơn hàng.'
+                : isVnpayQr
+                ? 'Quét mã QR bằng ứng dụng Ngân hàng / VNPay hoặc chuyển khoản theo thông tin bên dưới.'
+                : isCod
+                ? 'Đơn hàng đã được tiếp nhận. Nhân viên sẽ liên hệ trước khi giao hàng.'
+                : 'Cảm ơn bạn! Đơn hàng của bạn đang được xử lý.'}
+            </p>
           </div>
 
-          {/* ── Thông tin chi tiết ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="px-10 pb-8"
-          >
-            {/* Mã đơn hàng */}
+          <div className="px-6 sm:px-8 pb-8 space-y-5">
+            {/* Mã đơn hàng Bar */}
             {orderId && (
-              <div className="mb-5 px-4 py-3 bg-bg border border-border rounded-xl flex items-center justify-between gap-3">
+              <div className="p-3.5 bg-bg border border-border rounded-xl flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs text-text-secondary">Mã đơn hàng</p>
-                  <p className="font-mono font-bold text-primary text-sm mt-0.5">{orderId}</p>
+                  <span className="text-[11px] text-text-muted font-bold uppercase tracking-wider block">
+                    MÃ ĐƠN HÀNG
+                  </span>
+                  <span className="font-mono font-extrabold text-primary text-base">{orderId}</span>
                 </div>
-                <div className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  isSuccess
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-600'
-                }`}>
-                  {isSuccess ? (isCod ? 'Chờ giao hàng' : dbStatus === 'completed' ? 'Đã thanh toán' : 'Đang xử lý') : 'Thất bại'}
+                <div className="text-right">
+                  <span
+                    className={`inline-block text-xs font-extrabold px-3 py-1 rounded-full ${
+                      hasTransferred
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : isVnpayQr
+                        ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}
+                  >
+                    {hasTransferred
+                      ? 'Chờ Admin kiểm tra'
+                      : isVnpayQr
+                      ? 'Chờ quét mã QR'
+                      : 'Đang xử lý'}
+                  </span>
                 </div>
               </div>
             )}
 
-            {/* Thông tin giao dịch VNPay */}
-            <AnimatePresence>
-              {isVnpay && (amountDisplay || vnp_TransactionNo || bankDisplay || payDateDisplay) && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ delay: 0.5 }}
-                  className="mb-5 bg-bg border border-border rounded-xl overflow-hidden"
-                >
-                  <div className="px-4 py-2.5 border-b border-border bg-blue-50/50">
-                    <div className="flex items-center gap-2">
-                      <CreditCard size={14} className="text-blue-600" />
-                      <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
-                        Thông tin giao dịch VNPay
-                      </span>
-                    </div>
-                  </div>
-                  <div className="px-4 divide-y divide-border">
-                    <InfoRow icon={CreditCard} label="Số tiền thanh toán" value={amountDisplay} />
-                    <InfoRow icon={Hash} label="Mã giao dịch VNPay" value={vnp_TransactionNo} mono />
-                    <InfoRow icon={Building2} label="Ngân hàng thanh toán" value={bankDisplay} />
-                    <InfoRow icon={Calendar} label="Thời gian thanh toán" value={payDateDisplay} />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Hướng dẫn COD */}
-            {isCod && (
+            {/* Màn hình Mã QR & Thông tin Chuyển khoản VNPay */}
+            {isVnpayQr && !hasTransferred && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.55 }}
-                className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-b from-blue-50/50 to-white border border-blue-200 rounded-2xl p-5 space-y-4 shadow-sm"
               >
-                <p className="text-sm font-semibold text-amber-700 mb-2 flex items-center gap-2">
-                  💵 Hướng dẫn thanh toán COD
+                {/* QR Code Image Container */}
+                <div className="flex flex-col items-center justify-center p-4 bg-white border border-blue-200 rounded-xl shadow-xs">
+                  <span className="text-xs font-extrabold text-blue-900 mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                    <QrCode size={15} className="text-blue-600" />
+                    MÃ QR THANH TOÁN TỰ ĐỘNG
+                  </span>
+                  <img
+                    src={qrUrl}
+                    alt="VietQR VNPay Code"
+                    className="w-52 h-52 object-contain rounded-lg border border-slate-200 p-1 bg-white shadow-xs"
+                  />
+                  <span className="text-[11px] text-slate-500 font-medium mt-2">
+                    Quét qua ứng dụng Ngân hàng (MB, Vietcombank, Techcombank...) hoặc VNPay
+                  </span>
+                </div>
+
+                {/* Bank Details Table */}
+                <div className="divide-y divide-blue-100 text-xs sm:text-sm bg-white p-4 rounded-xl border border-blue-100 shadow-2xs">
+                  <InfoRow icon={Building2} label="Ngân hàng" value="MB Bank (Ngân hàng Quân Đội)" />
+                  <InfoRow
+                    icon={CreditCard}
+                    label="Số tài khoản"
+                    value="0382910391"
+                    mono
+                    onCopy={() => copyToClipboard('0382910391', setCopiedAcc)}
+                    copied={copiedAcc}
+                  />
+                  <InfoRow icon={UserCheck} label="Chủ tài khoản" value="NHA THUOC PHARMAI" />
+                  <InfoRow
+                    icon={CreditCard}
+                    label="Số tiền cần chuyển"
+                    value={amountDisplay || formatCurrency(orderAmountNum)}
+                    onCopy={() => copyToClipboard(orderAmountNum.toString(), setCopiedAmount)}
+                    copied={copiedAmount}
+                  />
+                  <InfoRow
+                    icon={Hash}
+                    label="Nội dung chuyển khoản (bắt buộc)"
+                    value={orderId}
+                    mono
+                    onCopy={() => copyToClipboard(orderId, setCopiedMemo)}
+                    copied={copiedMemo}
+                  />
+                </div>
+
+                {/* Button NỔI BẬT: ĐÃ CHUYỂN KHỎAN */}
+                <button
+                  type="button"
+                  onClick={handleConfirmTransfer}
+                  disabled={submittingConfirm}
+                  className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm sm:text-base uppercase tracking-wider rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <CheckCircle size={20} />
+                  <span>{submittingConfirm ? 'ĐANG GHI NHẬN...' : 'TÔI ĐÃ CHUYỂN KHỎAN'}</span>
+                </button>
+
+                <p className="text-[11px] text-center text-slate-500 font-medium">
+                  * Sau khi hoàn tất chuyển khoản trên App ngân hàng, bạn bấm nút <strong>"TÔI ĐÃ CHUYỂN KHỎAN"</strong> để Admin đối soát & phê duyệt đơn.
                 </p>
-                <ul className="text-xs text-amber-700 space-y-1.5 list-disc list-inside">
-                  <li>Nhân viên giao hàng sẽ gọi điện xác nhận trước khi đến</li>
-                  <li>Vui lòng chuẩn bị đúng số tiền để tiện thanh toán</li>
-                  <li>Thời gian giao hàng: <strong>1–3 ngày làm việc</strong></li>
-                  <li>Liên hệ hỗ trợ nếu cần thay đổi hoặc huỷ đơn</li>
-                </ul>
               </motion.div>
             )}
 
-            {/* Cảnh báo khi thất bại */}
-            {!isSuccess && errorDesc && vnp_ResponseCode !== '24' && (
+            {/* Thông báo sau khi bấm ĐÃ CHUYỂN */}
+            {hasTransferred && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.55 }}
-                className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl flex gap-3"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-center"
               >
-                <AlertTriangle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-red-700 leading-relaxed">{errorDesc}</p>
+                <div className="flex items-center justify-center gap-2 text-emerald-800 font-extrabold text-base">
+                  <ShieldCheck size={20} className="text-emerald-600" />
+                  <span>Đã nhận thông báo chuyển khoản</span>
+                </div>
+                <p className="text-xs text-emerald-700 leading-relaxed">
+                  Admin sẽ kiểm tra biến động tài khoản và cập nhật trạng thái đơn hàng sang <strong>Đã hoàn thành</strong> trong giây lát.
+                </p>
               </motion.div>
             )}
 
             {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 id="btn-home"
                 variant="primary"
@@ -300,30 +328,23 @@ export default function OrderSuccess() {
                 Về trang chủ
               </Button>
 
-              {!isSuccess && (
-                <Button
-                  id="btn-retry"
-                  variant="outline"
-                  fullWidth
-                  onClick={() => navigate('/checkout')}
-                  icon={<ShoppingBag size={18} />}
-                >
-                  Thử lại
-                </Button>
-              )}
+              <Button
+                id="btn-profile-orders"
+                variant="outline"
+                fullWidth
+                onClick={() => navigate('/profile?tab=orders')}
+                icon={<ShoppingBag size={18} />}
+              >
+                Quản lý đơn hàng
+              </Button>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
 
-        {/* Footer note */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="text-center text-xs text-text-secondary mt-5"
-        >
-          Cần hỗ trợ? Liên hệ <span className="text-primary font-medium">support@pharmai.vn</span>
-        </motion.p>
+        {/* Footer Note */}
+        <p className="text-center text-xs text-text-secondary mt-4">
+          Cần hỗ trợ gấp? Hotline/Zalo: <span className="text-primary font-bold">0901 234 567</span>
+        </p>
       </div>
     </PageTransition>
   );

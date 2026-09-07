@@ -19,6 +19,9 @@ public class Order {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column(name = "user_email")
+    private String userEmail;
+
     private String phone;
 
     @Column(columnDefinition = "TEXT")

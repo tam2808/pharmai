@@ -9,6 +9,14 @@ export const login = async (credentials) => {
 };
 
 /**
+ * Đăng nhập bằng Google
+ */
+export const googleLogin = async (googleData) => {
+  const response = await axiosClient.post('/auth/google', googleData);
+  return response.data;
+};
+
+/**
  * Đăng ký
  */
 export const register = async (userData) => {
@@ -37,4 +45,20 @@ export const getCurrentUser = async () => {
  */
 export const logoutApi = async () => {
   return { data: { message: 'Đăng xuất thành công' } };
+};
+
+/**
+ * Cập nhật thông tin cá nhân khách hàng
+ */
+export const updateProfile = async (userData) => {
+  const response = await axiosClient.put('/auth/profile', userData);
+  return response.data;
+};
+
+/**
+ * Đổi mật khẩu tài khoản
+ */
+export const changePassword = async (passwordData) => {
+  const response = await axiosClient.post('/auth/change-password', passwordData);
+  return response.data;
 };

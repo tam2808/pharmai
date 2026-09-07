@@ -54,6 +54,12 @@ public class PaymentController {
 
         String orderId   = (String) request.get("orderId");
         Number amountNum = (Number) request.get("amount");
+        String bankCode  = (String) request.get("bankCode"); // Ví dụ: "VNPAYQR" hoặc "NCB"
+
+        // Nếu không truyền bankCode, mặc định mở trực tiếp trang VNPAYQR để quét mã
+        if (bankCode == null || bankCode.isBlank()) {
+            bankCode = "VNPAYQR";
+        }
 
         if (orderId == null || orderId.isBlank()) {
             return ResponseEntity.badRequest()
@@ -79,11 +85,11 @@ public class PaymentController {
         }
 
         // Đảm bảo ipAddr không null (fallback sang localhost nếu cần)
-        if (ipAddr == null || ipAddr.isBlank()) {
+        if (ipAddr == null || ipAddr.isBlank() || "0:0:0:0:0:0:0:1".equals(ipAddr) || "::1".equals(ipAddr)) {
             ipAddr = "127.0.0.1";
         }
 
-        String paymentUrl = vnPayService.createPaymentUrl(orderId, amount, orderInfo, ipAddr);
+        String paymentUrl = vnPayService.createPaymentUrl(orderId, amount, orderInfo, ipAddr, bankCode);
 
         Map<String, Object> data = new HashMap<>();
         data.put("paymentUrl", paymentUrl);

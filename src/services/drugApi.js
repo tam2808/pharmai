@@ -17,7 +17,7 @@ export const getAllDrugs = getDrugs;
  */
 export const getDrugById = async (id) => {
   const response = await axiosClient.get(`/drugs/${id}`);
-  return response.data;
+  return response.data?.data || response.data;
 };
 
 /**
@@ -40,7 +40,10 @@ export const getCategories = async () => {
 /**
  * Lấy thuốc nổi bật (cho trang chủ)
  */
-export const getFeaturedDrugs = async () => {
-  const response = await axiosClient.get('/drugs/featured');
-  return response.data;
+export const getDrug = getDrugById;
+
+export const searchDrugs = async (query) => {
+  const res = await getDrugs({ q: query });
+  return res?.data || res || [];
 };
+

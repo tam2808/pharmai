@@ -84,7 +84,7 @@ export default function SearchBar({ placeholder = 'Tìm kiếm tên thuốc, ho�
           }}
           placeholder={placeholder}
           className={cn(
-            'w-full bg-surface border border-border text-text-primary pl-12 pr-4 py-4.5 rounded-lg text-body',
+            'w-full bg-surface border border-border text-text-primary pl-12 pr-4 py-5 rounded-lg text-body',
             'outline-none transition-all duration-300',
             'focus:border-primary focus:shadow-[0_0_0_3px_rgba(11,61,46,0.1)]'
           )}

@@ -13,6 +13,8 @@ import {
   ChevronDown,
   Pill,
   LayoutDashboard,
+  Package,
+  ShieldCheck,
 } from 'lucide-react';
 import { selectCartTotalItems } from '../../store/cartSlice';
 import { logout } from '../../store/authSlice';
@@ -27,6 +29,7 @@ const navLinks = [
   { path: '/', label: 'Trang chủ' },
   { path: '/search', label: 'Tìm thuốc' },
   { path: '/chatbot', label: 'Chatbot AI', icon: MessageSquare, badge: 'AI' },
+  { path: '/about', label: 'Giới thiệu' },
 ];
 
 export default function Header() {
@@ -57,14 +60,7 @@ export default function Header() {
   };
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-400',
-        scrolled
-          ? 'bg-white shadow-card border-b border-border/50'
-          : 'bg-white/70 backdrop-blur-sm'
-      )}
-    >
+    <header className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-border/80 shadow-xs">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-12">
         <div className="flex items-center justify-between h-16 lg:h-[68px]">
 
@@ -128,7 +124,7 @@ export default function Header() {
             {/* Search shortcut */}
             <button
               onClick={() => navigate('/search')}
-              className="p-2.5 rounded-xl text-text-secondary hover:text-primary hover:bg-primary-light transition-all duration-200"
+              className="p-2.5 rounded-xl text-text-secondary hover:text-primary hover:bg-primary-light transition-all duration-200 cursor-pointer"
               aria-label="Tìm kiếm"
             >
               <Search size={18} />
@@ -158,18 +154,18 @@ export default function Header() {
 
             {/* Auth */}
             {isAuthenticated ? (
-              <div className="relative ml-1">
+              <div className="relative ml-2">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 pl-3 pr-2.5 py-2 rounded-xl bg-primary-light hover:bg-primary-light/80 transition-colors duration-200"
+                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-primary-light hover:bg-primary-light/80 transition-colors duration-200 cursor-pointer shadow-xs border border-primary/20"
                 >
-                  <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center">
-                    <User size={12} className="text-white" />
+                  <div className="w-7 h-7 gradient-primary rounded-full flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <span className="text-sm font-semibold text-text-primary max-w-[80px] truncate">
+                  <span className="text-sm font-bold text-text-primary max-w-[110px] truncate">
                     {user?.name || 'Tài khoản'}
                   </span>
-                  <ChevronDown size={14} className={cn('text-text-secondary transition-transform duration-200', userMenuOpen && 'rotate-180')} />
+                  <ChevronDown size={16} className={cn('text-text-secondary transition-transform duration-200', userMenuOpen && 'rotate-180')} />
                 </button>
 
                 <AnimatePresence>
@@ -179,28 +175,58 @@ export default function Header() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-48 glass rounded-2xl shadow-modal border border-border/50 overflow-hidden"
+                      className="absolute right-0 top-full mt-2.5 w-64 bg-surface rounded-2xl shadow-xl border border-border/80 overflow-hidden z-50 p-2 space-y-1"
                     >
-                      <div className="px-4 py-3 border-b border-border/50">
-                        <p className="text-xs text-text-muted">Đăng nhập với</p>
-                        <p className="text-sm font-semibold text-text-primary truncate">{user?.email || user?.name}</p>
+                      <div className="px-4 py-3 border-b border-border/60 bg-bg/80 rounded-xl mb-1">
+                        <p className="text-[11px] uppercase font-extrabold text-text-muted tracking-wider">Đăng nhập với</p>
+                        <p className="text-sm font-bold text-text-primary truncate mt-0.5">{user?.email || user?.name}</p>
                       </div>
-                      {user?.role === 'ROLE_ADMIN' && (
+
+                      <div className="space-y-0.5">
                         <button
-                          onClick={() => { navigate('/admin'); setUserMenuOpen(false); }}
-                          className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-primary hover:bg-primary-light transition-colors duration-150"
+                          onClick={() => { navigate('/profile?tab=info'); setUserMenuOpen(false); }}
+                          className="w-full flex items-center gap-3 px-3.5 py-3 text-sm font-bold text-text-primary rounded-xl hover:bg-primary-light hover:text-primary transition-all cursor-pointer"
                         >
-                          <LayoutDashboard size={15} />
-                          Trang quản trị
+                          <User size={18} className="text-primary shrink-0" />
+                          <span>Thông tin cá nhân</span>
                         </button>
+                        <button
+                          onClick={() => { navigate('/profile?tab=orders'); setUserMenuOpen(false); }}
+                          className="w-full flex items-center gap-3 px-3.5 py-3 text-sm font-bold text-text-primary rounded-xl hover:bg-primary-light hover:text-primary transition-all cursor-pointer"
+                        >
+                          <Package size={18} className="text-primary shrink-0" />
+                          <span>Đơn hàng & Theo dõi</span>
+                        </button>
+                        <button
+                          onClick={() => { navigate('/profile?tab=security'); setUserMenuOpen(false); }}
+                          className="w-full flex items-center gap-3 px-3.5 py-3 text-sm font-bold text-text-primary rounded-xl hover:bg-primary-light hover:text-primary transition-all cursor-pointer"
+                        >
+                          <ShieldCheck size={18} className="text-primary shrink-0" />
+                          <span>Bảo mật & Quyền riêng tư</span>
+                        </button>
+                      </div>
+
+                      {user?.role === 'ROLE_ADMIN' && (
+                        <div className="border-t border-border/60 pt-1 mt-1">
+                          <button
+                            onClick={() => { navigate('/admin'); setUserMenuOpen(false); }}
+                            className="w-full flex items-center gap-3 px-3.5 py-3 text-sm font-bold text-primary rounded-xl hover:bg-primary-light transition-all cursor-pointer"
+                          >
+                            <LayoutDashboard size={18} className="shrink-0" />
+                            <span>Trang quản trị</span>
+                          </button>
+                        </div>
                       )}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-error hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <LogOut size={15} />
-                        Đăng xuất
-                      </button>
+
+                      <div className="border-t border-border/60 pt-1 mt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-3.5 py-3 text-sm font-bold text-error rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                        >
+                          <LogOut size={18} className="shrink-0" />
+                          <span>Đăng xuất</span>
+                        </button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -285,17 +311,37 @@ export default function Header() {
               <div className="border-t border-border/50 pt-3 mt-3 space-y-2">
                 {isAuthenticated ? (
                   <>
-                    <div className="px-4 py-2 text-sm text-text-secondary flex items-center gap-2">
+                    <Link
+                      to="/profile"
+                      className="px-4 py-2 text-sm font-semibold text-text-primary flex items-center gap-2 hover:bg-primary-light rounded-xl"
+                    >
                       <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center">
                         <User size={11} className="text-white" />
                       </div>
-                      {user?.name || 'Người dùng'}
-                    </div>
+                      <span>{user?.name || 'Người dùng'}</span>
+                    </Link>
+
+                    <Link
+                      to="/profile?tab=orders"
+                      className="px-4 py-2.5 text-xs text-text-secondary flex items-center gap-2 hover:bg-primary-light rounded-xl"
+                    >
+                      <Package size={15} />
+                      <span>Đơn hàng & Theo dõi</span>
+                    </Link>
+
+                    <Link
+                      to="/profile?tab=security"
+                      className="px-4 py-2.5 text-xs text-text-secondary flex items-center gap-2 hover:bg-primary-light rounded-xl"
+                    >
+                      <ShieldCheck size={15} />
+                      <span>Bảo mật & Quyền riêng tư</span>
+                    </Link>
+
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-error hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-error hover:bg-red-50 transition-colors"
                     >
-                      <LogOut size={16} />
+                      <LogOut size={15} />
                       Đăng xuất
                     </button>
                   </>

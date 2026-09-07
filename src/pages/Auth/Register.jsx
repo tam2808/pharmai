@@ -3,14 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useDispatch, useSelector } from 'react-redux';
-import { User, Mail, Phone, Lock, AlertCircle } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { User, Mail, Phone, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { loginStart, loginSuccess, loginFailure } from '../../store/authSlice';
 import { register as registerService } from '../../services/authApi';
 import AuthLayout from './AuthLayout';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
 import PageTransition from '../../components/layout/PageTransition';
 
 // Validation schema
@@ -30,6 +28,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [apiError, setApiError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -45,17 +44,14 @@ export default function Register() {
     setApiError(null);
     dispatch(loginStart());
     try {
-      // Save register data for resend OTP functionality
       localStorage.setItem('pharmai-register-data', JSON.stringify(data));
       const response = await registerService(data);
 
-      // If account was auto-activated (admin email), log in directly
       if (response.data?.token) {
         dispatch(loginSuccess(response.data));
         toast.success('Đăng ký thành công!');
         navigate('/');
       } else if (response.requiresVerification) {
-        // Normal user: redirect to OTP verification page
         dispatch({ type: 'auth/loginFailure', payload: null });
         toast.info('Mã xác thực đã được gửi đến email của bạn');
         navigate('/verify-email', { 
@@ -77,78 +73,123 @@ export default function Register() {
 
   return (
     <PageTransition>
-      <AuthLayout
-        title="Tạo tài khoản mới"
-        subtitle="Tham gia PharmAI để mua thuốc và tư vấn sức khỏe cao cấp"
-      >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <AuthLayout activeTab="register">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          
           {apiError && (
-            <div className="p-3 bg-error/10 border border-error/20 text-error rounded-lg flex items-start gap-2.5 text-sm animate-in fade-in">
+            <div className="p-3 bg-rose-500/20 border border-rose-500/30 text-rose-200 rounded-xl flex items-start gap-2.5 text-xs animate-in fade-in">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <span>{apiError}</span>
             </div>
           )}
 
-          <Input
-            label="Họ và tên"
-            type="text"
-            icon={<User size={18} />}
-            error={errors.name?.message}
-            {...register('name')}
-          />
+          {/* Full Name */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <User size={13} className="text-amber-400" />
+              FULL NAME
+            </label>
+            <input
+              type="text"
+              placeholder="Nguyễn Văn A"
+              className={`w-full px-4 py-3 bg-white/10 border ${
+                errors.name ? 'border-rose-400' : 'border-white/20'
+              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              {...register('name')}
+            />
+            {errors.name && <span className="text-[10px] text-rose-300 font-medium">{errors.name.message}</span>}
+          </div>
 
-          <Input
-            label="Địa chỉ email"
-            type="email"
-            icon={<Mail size={18} />}
-            error={errors.email?.message}
-            {...register('email')}
-          />
+          {/* Email */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Mail size={13} className="text-amber-400" />
+              EMAIL ADDRESS
+            </label>
+            <input
+              type="email"
+              placeholder="email@example.com"
+              className={`w-full px-4 py-3 bg-white/10 border ${
+                errors.email ? 'border-rose-400' : 'border-white/20'
+              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              {...register('email')}
+            />
+            {errors.email && <span className="text-[10px] text-rose-300 font-medium">{errors.email.message}</span>}
+          </div>
 
-          <Input
-            label="Số điện thoại"
-            type="tel"
-            icon={<Phone size={18} />}
-            error={errors.phone?.message}
-            {...register('phone')}
-          />
+          {/* Phone */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Phone size={13} className="text-amber-400" />
+              PHONE NUMBER
+            </label>
+            <input
+              type="tel"
+              placeholder="0901234567"
+              className={`w-full px-4 py-3 bg-white/10 border ${
+                errors.phone ? 'border-rose-400' : 'border-white/20'
+              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              {...register('phone')}
+            />
+            {errors.phone && <span className="text-[10px] text-rose-300 font-medium">{errors.phone.message}</span>}
+          </div>
 
-          <Input
-            label="Mật khẩu"
-            type="password"
-            icon={<Lock size={18} />}
-            error={errors.password?.message}
-            {...register('password')}
-          />
+          {/* Password */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock size={13} className="text-amber-400" />
+              PASSWORD
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                className={`w-full px-4 py-3 pr-10 bg-white/10 border ${
+                  errors.password ? 'border-rose-400' : 'border-white/20'
+                } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {errors.password && <span className="text-[10px] text-rose-300 font-medium">{errors.password.message}</span>}
+          </div>
 
-          <Input
-            label="Xác nhận mật khẩu"
-            type="password"
-            icon={<Lock size={18} />}
-            error={errors.confirmPassword?.message}
-            {...register('confirmPassword')}
-          />
+          {/* Confirm Password */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock size={13} className="text-amber-400" />
+              CONFIRM PASSWORD
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className={`w-full px-4 py-3 bg-white/10 border ${
+                errors.confirmPassword ? 'border-rose-400' : 'border-white/20'
+              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              {...register('confirmPassword')}
+            />
+            {errors.confirmPassword && (
+              <span className="text-[10px] text-rose-300 font-medium">{errors.confirmPassword.message}</span>
+            )}
+          </div>
 
-          <div className="pt-2">
-            <Button
+          {/* Submit Button */}
+          <div className="pt-3">
+            <button
               type="submit"
-              variant="primary"
-              fullWidth
-              loading={submitting}
+              disabled={submitting}
+              className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
             >
-              Đăng ký tài khoản
-            </Button>
+              {submitting ? 'Processing...' : 'SIGN UP'}
+            </button>
           </div>
 
-          <div className="text-center text-sm text-text-secondary mt-6">
-            Đã có tài khoản?{' '}
-            <Link
-              to="/login"
-              className="text-primary font-semibold hover:underline"
-            >
-              Đăng nhập
-            </Link>
-          </div>
         </form>
       </AuthLayout>
     </PageTransition>

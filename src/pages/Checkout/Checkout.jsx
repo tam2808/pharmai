@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Truck, CreditCard, CheckCircle, ShieldCheck, Lock, Info } from 'lucide-react';
+import { Truck, CreditCard, CheckCircle, ShieldCheck, Lock, Info, Copy, Check, QrCode } from 'lucide-react';
 import { selectCartItems, selectCartTotalPrice } from '../../store/cartSlice';
 import { createOrder, getVnpayUrl } from '../../services/orderApi';
 import Input from '../../components/ui/Input';
@@ -28,6 +28,25 @@ const checkoutSchema = z.object({
 // ── Phương thức thanh toán ───────────────────────────────────
 const PAYMENT_METHODS = [
   {
+    id: 'VNPAYQR',
+    label: 'Quét mã VNPAY-QR',
+    desc: 'Hiển thị mã QR thanh toán tức thì trên màn hình',
+    icon: QrCode,
+    color: 'text-blue-600',
+    activeBg: 'bg-blue-50',
+    activeBorder: 'border-blue-500',
+    badge: 'Mở QR ngay',
+  },
+  {
+    id: 'VNPAY',
+    label: 'VNPay (ATM / Visa)',
+    desc: 'Thẻ ATM nội địa (NCB...), Visa / MasterCard',
+    icon: CreditCard,
+    color: 'text-purple-600',
+    activeBg: 'bg-purple-50',
+    activeBorder: 'border-purple-500',
+  },
+  {
     id: 'COD',
     label: 'Thanh toán khi nhận hàng',
     desc: 'Trả tiền mặt khi nhận được hàng',
@@ -35,16 +54,6 @@ const PAYMENT_METHODS = [
     color: 'text-amber-600',
     activeBg: 'bg-amber-50',
     activeBorder: 'border-amber-400',
-  },
-  {
-    id: 'VNPAY',
-    label: 'Thanh toán qua VNPay',
-    desc: 'ATM · Visa · MasterCard · QR Code',
-    icon: CreditCard,
-    color: 'text-blue-600',
-    activeBg: 'bg-blue-50',
-    activeBorder: 'border-blue-500',
-    badge: 'Bảo mật',
   },
 ];
 
@@ -116,8 +125,18 @@ export default function Checkout() {
   const totalPrice = useSelector(selectCartTotalPrice);
 
   const [submitting,     setSubmitting]     = useState(false);
-  const [paymentMethod,  setPaymentMethod]  = useState('COD');
+  const [paymentMethod,  setPaymentMethod]  = useState('VNPAYQR');
   const [showVnpayLoad,  setShowVnpayLoad]  = useState(false);
+  const [copiedCard,     setCopiedCard]     = useState(false);
+
+  const handleCopyCard = () => {
+    navigator.clipboard.writeText('9704198526191432198');
+    setCopiedCard(true);
+    toast.success('Đã sao chép số thẻ test VNPay!');
+    setTimeout(() => setCopiedCard(false), 2000);
+  };
+
+  const { user } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -126,6 +145,12 @@ export default function Checkout() {
   } = useForm({
     resolver: zodResolver(checkoutSchema),
     mode: 'onChange',
+    defaultValues: {
+      fullName: user?.name || '',
+      phone: user?.phone || '',
+      address: user?.address || '',
+      notes: '',
+    },
   });
 
   const onSubmitOrder = async (formData) => {
@@ -140,7 +165,8 @@ export default function Checkout() {
       const orderRes = await createOrder({
         items: cartItems,
         total: totalPrice,
-        shippingInfo: formData,
+        shippingInfo: { ...formData, email: user?.email },
+        userEmail: user?.email,
         paymentMethod,
       });
 
@@ -154,16 +180,10 @@ export default function Checkout() {
         return;
       }
 
-      // VNPAY: lấy URL thanh toán và redirect
-      setShowVnpayLoad(true);
-      const vnpayRes = await getVnpayUrl(orderId, totalPrice);
-      const paymentUrl = vnpayRes?.data?.paymentUrl;
-
-      if (!paymentUrl) throw new Error('Không lấy được URL thanh toán VNPay');
-
-      // Delay nhỏ để người dùng thấy overlay
-      await new Promise((r) => setTimeout(r, 600));
-      window.location.href = paymentUrl;
+      // VNPAY: Chuyển hướng sang màn hình mã QR thanh toán tương ứng số tiền đơn hàng
+      toast.success('Đã tạo đơn hàng thành công! Vui lòng quét mã QR thanh toán.');
+      navigate(`/order-success?orderId=${orderId}&status=vnpay_qr&amount=${totalPrice}`);
+      return;
 
     } catch (error) {
       const msg =
@@ -178,63 +198,76 @@ export default function Checkout() {
 
   return (
     <>
-      <PageTransition className="py-24 bg-bg min-h-screen">
-        <div className="max-w-[1280px] mx-auto px-6 lg:px-16">
-          <h1 className="text-h3 lg:text-h2 font-semibold text-text-primary mb-14 text-center lg:text-left">
-            Thông tin thanh toán
-          </h1>
+      <PageTransition className="bg-bg min-h-screen" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
+        <div className="max-w-[1100px] mx-auto px-4 lg:px-8">
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             {/* ── Cột trái — Form ── */}
-            <div
-              className="lg:col-span-7 bg-surface border border-border rounded-xl p-8 lg:p-10 shadow-card max-w-[600px] mx-auto lg:mx-0 w-full"
-              style={{ marginTop: '80px' }}
-            >
-              <h2 className="text-xl font-semibold text-text-primary mb-8">
-                Địa chỉ nhận hàng
-              </h2>
+            <div className="lg:col-span-7 space-y-5">
 
-              <form onSubmit={handleSubmit(onSubmitOrder)} className="space-y-10">
-                <Input
-                  label="Họ và tên người nhận"
-                  type="text"
-                  error={errors.fullName?.message}
-                  {...register('fullName')}
-                />
-
-                <Input
-                  label="Số điện thoại liên hệ"
-                  type="tel"
-                  error={errors.phone?.message}
-                  {...register('phone')}
-                />
-
-                <Input
-                  label="Địa chỉ giao thuốc chi tiết"
-                  type="text"
-                  error={errors.address?.message}
-                  {...register('address')}
-                />
-
-                <div className="relative">
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                    Ghi chú thêm
-                  </label>
-                  <textarea
-                    id="notes"
-                    rows="4"
-                    placeholder="Ghi chú thêm cho người giao hàng..."
-                    className="w-full bg-transparent px-4 py-3 text-text-primary text-body border border-border rounded-md outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(11,61,46,0.1)] transition-all resize-none"
-                    {...register('notes')}
-                  />
+              {/* Section: Thông tin người đặt */}
+              <div className="bg-surface border border-border rounded-xl p-6 shadow-xs">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <CreditCard size={16} className="text-primary" />
+                  </div>
+                  <h2 className="text-sm font-bold text-text-primary">Thông tin người đặt</h2>
                 </div>
 
-                {/* ── Chọn phương thức thanh toán ── */}
-                <div>
-                  <p className="text-sm font-semibold text-text-primary mb-4">
-                    Phương thức thanh toán
-                  </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    label="Họ và tên người đặt"
+                    type="text"
+                    error={errors.fullName?.message}
+                    {...register('fullName')}
+                  />
+                  <Input
+                    label="Số điện thoại"
+                    type="tel"
+                    error={errors.phone?.message}
+                    {...register('phone')}
+                  />
+                </div>
+              </div>
+
+              {/* Section: Thông tin nhận hàng */}
+              <form onSubmit={handleSubmit(onSubmitOrder)}>
+                <div className="bg-surface border border-border rounded-xl p-6 shadow-xs">
+                  <div className="flex items-center gap-2.5 mb-5">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Truck size={16} className="text-primary" />
+                    </div>
+                    <h2 className="text-sm font-bold text-text-primary">Thông tin nhận hàng</h2>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Input
+                      label="Địa chỉ giao hàng"
+                      type="text"
+                      error={errors.address?.message}
+                      {...register('address')}
+                    />
+
+                    <textarea
+                      id="notes"
+                      rows="2"
+                      placeholder="Ghi chú (không bắt buộc)"
+                      className="w-full bg-surface px-4 py-3 text-text-primary text-sm border border-border rounded-lg outline-none hover:border-text-muted focus:border-primary focus:shadow-[0_0_0_3px_rgba(14,165,233,0.08)] transition-all resize-none placeholder:text-text-muted"
+                      {...register('notes')}
+                    />
+                  </div>
+                </div>
+
+                {/* Section: Phương thức thanh toán */}
+                <div className="bg-surface border border-border rounded-xl p-6 shadow-xs mt-5">
+                  <div className="flex items-center gap-2.5 mb-5">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <ShieldCheck size={16} className="text-primary" />
+                    </div>
+                    <h2 className="text-sm font-bold text-text-primary">Phương thức thanh toán</h2>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {PAYMENT_METHODS.map((method) => {
                       const Icon     = method.icon;
@@ -245,32 +278,25 @@ export default function Checkout() {
                           type="button"
                           whileTap={{ scale: 0.97 }}
                           onClick={() => setPaymentMethod(method.id)}
-                          className={`relative flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all duration-200 cursor-pointer ${
+                          className={`relative flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all duration-200 cursor-pointer ${
                             selected
                               ? `${method.activeBorder} ${method.activeBg}`
                               : 'border-border bg-transparent hover:border-primary/40'
                           }`}
                         >
-                          <div className={`mt-0.5 p-2 rounded-lg ${selected ? method.activeBg : 'bg-bg'}`}>
-                            <Icon size={20} className={selected ? method.color : 'text-text-secondary'} />
+                          <div className={`p-2 rounded-lg ${selected ? method.activeBg : 'bg-bg'}`}>
+                            <Icon size={18} className={selected ? method.color : 'text-text-secondary'} />
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className={`text-sm font-semibold ${selected ? 'text-text-primary' : 'text-text-secondary'}`}>
-                                {method.label}
-                              </p>
-                              {method.badge && selected && (
-                                <span className="text-[10px] font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded-full">
-                                  {method.badge}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-text-secondary mt-0.5">{method.desc}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold ${selected ? 'text-text-primary' : 'text-text-secondary'}`}>
+                              {method.label}
+                            </p>
+                            <p className="text-xs text-text-muted mt-0.5">{method.desc}</p>
                           </div>
                           {selected && (
                             <CheckCircle
-                              size={18}
-                              className={`${method.color} absolute top-3 right-3 flex-shrink-0`}
+                              size={16}
+                              className={`${method.color} shrink-0`}
                             />
                           )}
                         </motion.button>
@@ -278,56 +304,99 @@ export default function Checkout() {
                     })}
                   </div>
 
-                  {/* VNPay info note */}
+                  {/* VNPay Sandbox Info Note */}
                   <AnimatePresence>
-                    {paymentMethod === 'VNPAY' && (
+                    {(paymentMethod === 'VNPAYQR' || paymentMethod === 'VNPAY') && (
                       <motion.div
                         initial={{ opacity: 0, height: 0, marginTop: 0 }}
                         animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="flex gap-2.5 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <Info size={14} className="text-blue-600 mt-0.5 flex-shrink-0" />
-                          <div className="text-xs text-blue-700 leading-relaxed">
-                            Bạn sẽ được chuyển đến cổng thanh toán VNPay an toàn.
-                            Hỗ trợ thẻ ATM nội địa, Visa, MasterCard và QR Code.
-                            <br />
-                            <span className="font-semibold">Thẻ test sandbox:</span>{' '}
-                            <code className="bg-blue-100 px-1 rounded">9704198526191432198</code>
+                        <div className="p-3.5 bg-blue-50/80 border border-blue-200 rounded-xl space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-blue-800">
+                              <Info size={15} className="text-blue-600 shrink-0" />
+                              <span>
+                                {paymentMethod === 'VNPAYQR'
+                                  ? 'Chế độ Quét Mã QR Trực Tiếp (VNPAY-QR)'
+                                  : 'Thông tin Thẻ Test VNPay Sandbox (NCB)'}
+                              </span>
+                            </div>
+                            <span className="text-[10px] uppercase font-semibold tracking-wider bg-blue-200/70 text-blue-800 px-2 py-0.5 rounded-full">
+                              Môi trường thử nghiệm
+                            </span>
                           </div>
+
+                          {paymentMethod === 'VNPAYQR' ? (
+                            <div className="text-xs text-blue-900 bg-white/70 p-2.5 rounded-lg border border-blue-100 leading-relaxed">
+                              <p className="font-semibold text-blue-800 mb-1">
+                                🚀 Mở thẳng trang quét mã QR (Không qua chọn thủ công):
+                              </p>
+                              <p>
+                                Khi nhấn thanh toán, hệ thống sẽ <strong>chuyển trực tiếp sang màn hình Mã QR</strong> của VNPay. Trong môi trường Sandbox, bạn có thể quét mã bằng App ngân hàng hoặc dùng thẻ test NCB để xác nhận giao dịch thành công ngay lập tức.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-blue-900 bg-white/70 p-2.5 rounded-lg border border-blue-100 space-y-1.5">
+                              <div className="flex items-center justify-between gap-2">
+                                <span>Ngân hàng: <strong>NCB (Ngân hàng Quốc Dân)</strong></span>
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                <span>Số thẻ: <code className="bg-blue-100 px-1.5 py-0.5 rounded text-blue-900 font-mono font-bold">9704 1985 2619 1432 198</code></span>
+                                <button
+                                  type="button"
+                                  onClick={handleCopyCard}
+                                  className="flex items-center gap-1 text-[11px] font-medium text-blue-700 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                                >
+                                  {copiedCard ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
+                                  <span>{copiedCard ? 'Đã chép' : 'Sao chép'}</span>
+                                </button>
+                              </div>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-blue-800">
+                                <span>Tên chủ thẻ: <strong>NGUYEN VAN A</strong></span>
+                                <span>Ngày phát hành: <strong>07/15</strong></span>
+                                <span>OTP: <strong>123456</strong></span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
 
-                {/* ── Submit button ── */}
-                <div className="pt-2">
+                {/* Submit — nằm ngoài card, full width */}
+                <div className="mt-5">
                   <Button
                     id="btn-submit-checkout"
                     type="submit"
-                    variant={paymentMethod === 'VNPAY' ? 'primary' : 'accent'}
+                    variant={paymentMethod === 'COD' ? 'accent' : 'primary'}
                     size="lg"
                     fullWidth
                     loading={submitting}
                     icon={
-                      paymentMethod === 'VNPAY'
-                        ? <CreditCard size={20} />
-                        : <Truck size={20} />
+                      paymentMethod === 'VNPAYQR'
+                        ? <QrCode size={18} />
+                        : paymentMethod === 'VNPAY'
+                        ? <CreditCard size={18} />
+                        : <Truck size={18} />
                     }
                   >
                     {submitting
-                      ? (paymentMethod === 'VNPAY' ? 'Đang kết nối VNPay...' : 'Đang đặt hàng...')
-                      : (paymentMethod === 'VNPAY' ? 'Thanh toán qua VNPay' : 'Đặt hàng (COD)')}
+                      ? (paymentMethod === 'COD' ? 'Đang đặt hàng...' : 'Đang kết nối VNPay...')
+                      : (paymentMethod === 'VNPAYQR'
+                          ? 'Mở Mã QR Thanh Toán VNPAY'
+                          : paymentMethod === 'VNPAY'
+                          ? 'Thanh toán qua VNPay (ATM/Visa)'
+                          : 'Hoàn tất đặt hàng')}
                   </Button>
 
-                  {/* Security badge */}
-                  {paymentMethod === 'VNPAY' && (
-                    <div className="flex items-center justify-center gap-1.5 mt-3">
-                      <ShieldCheck size={13} className="text-green-600" />
-                      <span className="text-xs text-text-secondary">
-                        Kết nối mã hoá SSL 256-bit · Bảo mật bởi VNPay
+                  {(paymentMethod === 'VNPAYQR' || paymentMethod === 'VNPAY') && (
+                    <div className="flex items-center justify-center gap-1.5 mt-2.5">
+                      <ShieldCheck size={12} className="text-green-600" />
+                      <span className="text-[11px] text-text-muted">
+                        Mã hoá SSL 256-bit · Kết nối cổng VNPay Sandbox
                       </span>
                     </div>
                   )}
@@ -349,3 +418,4 @@ export default function Checkout() {
     </>
   );
 }
+

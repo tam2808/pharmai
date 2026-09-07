@@ -109,7 +109,7 @@ export default function DrugTabs({ drug }) {
                 </span>
               </div>
               <div className="p-4 bg-bg border border-border rounded-xl">
-                <h5 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-2">Chi tiết thành phần & Tá dược</h5>
+                <h5 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-2">Tá dược</h5>
                 <p className="text-sm text-text-secondary whitespace-pre-line leading-relaxed">
                   {drug.ingredients}
                 </p>
@@ -132,7 +132,7 @@ export default function DrugTabs({ drug }) {
               <div className="p-5 bg-warning/8 border border-warning/15 rounded-xl space-y-3 border-l-4 border-l-warning">
                 <div className="flex items-center gap-2 text-warning font-semibold">
                   <AlertTriangle size={17} className="shrink-0" />
-                  <h5 className="text-xs uppercase tracking-wider font-bold">Thông tin an toàn quan trọng</h5>
+                  <h5 className="text-xs uppercase tracking-wider font-bold">Cảnh báo</h5>
                 </div>
                 <p className="text-sm text-warning/90 leading-relaxed font-medium whitespace-pre-line">
                   {drug.warnings}
@@ -146,9 +146,7 @@ export default function DrugTabs({ drug }) {
                   </p>
                 </div>
               )}
-              <p className="text-[11px] text-text-secondary/70 italic px-1">
-                * Đọc kỹ hướng dẫn sử dụng trước khi dùng. Nếu gặp bất kỳ tác dụng phụ nào, hãy ngừng thuốc và liên hệ nhân viên y tế ngay.
-              </p>
+
             </motion.div>
           )}
 
@@ -175,7 +173,7 @@ export default function DrugTabs({ drug }) {
               <div className="p-4 bg-bg border border-border rounded-xl">
                 <h5 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Thermometer size={13} className="text-primary" />
-                  Lưu ý bảo quản đặc biệt
+                  Lưu ý đặc biệt
                 </h5>
                 <p className="text-sm text-text-secondary leading-relaxed">{storage.special}</p>
               </div>

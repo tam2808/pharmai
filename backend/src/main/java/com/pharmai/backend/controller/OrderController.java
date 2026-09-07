@@ -57,11 +57,17 @@ public class OrderController {
             paymentMethod = "COD";
         }
 
+        String userEmail = (String) orderRequest.get("userEmail");
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = (String) shippingInfo.get("email");
+        }
+
         // Create Order object
         String orderId = "ORD-" + System.currentTimeMillis();
         Order order = new Order();
         order.setId(orderId);
         order.setFullName(fullName);
+        order.setUserEmail(userEmail);
         order.setPhone(phone);
         order.setAddress(address);
         order.setNotes(notes);
@@ -111,6 +117,35 @@ public class OrderController {
         response.put("data", orderData);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<?> getMyOrders(@RequestParam(value = "email", required = false) String email,
+                                          @RequestParam(value = "phone", required = false) String phone) {
+        List<Order> orders = new ArrayList<>();
+        if (email != null && !email.trim().isEmpty()) {
+            orders = orderRepository.findByUserEmailOrderByCreatedAtDesc(email.trim());
+        }
+        if (orders.isEmpty() && phone != null && !phone.trim().isEmpty()) {
+            orders = orderRepository.findByPhoneOrderByCreatedAtDesc(phone.trim());
+        }
+
+        // If no orders matched specifically by userEmail/phone or no param provided, return all orders if total count is small for demo fallback
+        if (orders.isEmpty() && (email == null || email.trim().isEmpty())) {
+            orders = orderRepository.findAll();
+            orders.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        }
+
+        return ResponseEntity.ok(Map.of("data", orders));
+    }
+
+    @GetMapping("/track/{orderId}")
+    public ResponseEntity<?> trackOrder(@PathVariable("orderId") String orderId) {
+        Order order = orderRepository.findById(java.util.Objects.requireNonNull(orderId)).orElse(null);
+        if (order == null) {
+            return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy mã đơn hàng " + orderId));
+        }
+        return ResponseEntity.ok(Map.of("data", order));
     }
 
     @PutMapping("/{id}/status")

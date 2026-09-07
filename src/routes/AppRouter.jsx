@@ -18,6 +18,8 @@ const Register = lazy(() => import('../pages/Auth/Register'));
 const VerifyEmail = lazy(() => import('../pages/Auth/VerifyEmail'));
 const Chatbot = lazy(() => import('../pages/Chatbot/Chatbot'));
 const OrderSuccess = lazy(() => import('../pages/OrderSuccess/OrderSuccess'));
+const About = lazy(() => import('../pages/About/About'));
+const Profile = lazy(() => import('../pages/Profile/Profile'));
 
 // Admin pages
 const Dashboard = lazy(() => import('../pages/Admin/Dashboard'));
@@ -74,7 +76,16 @@ export default function AppRouter() {
             />
             
             <Route path="chatbot" element={<Chatbot />} />
+            <Route path="about" element={<About />} />
             <Route path="order-success" element={<OrderSuccess />} />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Auth routes (no header/footer layout) */}

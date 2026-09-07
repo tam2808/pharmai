@@ -22,6 +22,9 @@ public class User {
 
     private String phone;
 
+    @Column(columnDefinition = "TEXT")
+    private String address;
+
     @Column(nullable = false)
     private String password;
 

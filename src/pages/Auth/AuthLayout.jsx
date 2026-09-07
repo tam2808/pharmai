@@ -1,54 +1,46 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Pill } from 'lucide-react';
 
-/**
- * AuthLayout - Layout dùng chung cho Login & Register
- * Có nền gradient-mesh thương hiệu và căn giữa card form
- */
-export default function AuthLayout({ children, title, subtitle }) {
+export default function AuthLayout({ children, activeTab = 'login' }) {
+  const location = useLocation();
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-6 py-12 gradient-mesh">
-      {/* Brand Logo */}
-      <div className="mb-8">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+    <div 
+      className="min-h-screen flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden bg-slate-100"
+      style={{
+        background: 'linear-gradient(135deg, #f8fafc 0%, #ee4d2d15 40%, #00b0ff10 70%, #f1f5f9 100%)'
+      }}
+    >
+      {/* Background Subtle Shapes */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#ee4d2d]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Brand Logo Header */}
+      <div className="mb-5 relative z-10">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 bg-gradient-to-tr from-[#ee4d2d] to-amber-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <Pill size={22} className="text-white" strokeWidth={2.5} />
           </div>
-          <span className="text-2xl font-semibold text-text-primary font-display tracking-tight">
-            Pharm<span className="text-accent">AI</span>
-          </span>
+          <div className="flex flex-col leading-none">
+            <span className="text-2xl font-extrabold text-slate-900 font-display tracking-tight">
+              Pharm<span className="text-[#ee4d2d]">AI</span>
+            </span>
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest -mt-0.5">
+              Smart Pharmacy
+            </span>
+          </div>
         </Link>
       </div>
 
-      {/* Main Container */}
+      {/* Main White Auth Card */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-[420px] bg-surface rounded-xl border border-border p-8 shadow-modal"
+        initial={{ opacity: 0, y: 15, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-[420px] bg-white rounded-md p-6 sm:p-8 shadow-xl relative z-10 text-slate-800 border border-slate-200/80"
       >
-        <div className="text-center mb-6">
-          <h1 className="text-h3 font-semibold text-text-primary font-display mb-1.5">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-sm text-text-secondary">
-              {subtitle}
-            </p>
-          )}
-        </div>
-
+        {/* Content Form */}
         {children}
       </motion.div>
     </div>

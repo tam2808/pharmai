@@ -22,12 +22,18 @@ export default function CartItem({ item }) {
       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-surface border border-border rounded-xl"
     >
       <div className="flex items-center gap-4 w-full sm:w-auto">
-        {/* SVG Illustration placeholder */}
-        <div className="w-16 h-16 bg-bg rounded-lg flex items-center justify-center border border-border shrink-0">
-          <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M12 8v8M8 12h8" />
-          </svg>
+        {/* Drug Image or Fallback */}
+        <div className="w-16 h-16 bg-primary-lighter/40 rounded-xl flex items-center justify-center border border-primary/10 shrink-0 overflow-hidden p-1.5">
+          {item.image ? (
+            <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+          ) : (
+            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center shadow-xs">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+                <path d="m8.5 8.5 7 7" />
+              </svg>
+            </div>
+          )}
         </div>
 
         <div>

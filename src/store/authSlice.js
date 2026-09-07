@@ -41,13 +41,17 @@ const authSlice = createSlice({
     setUser(state, action) {
       state.user = action.payload;
     },
+    updateProfileSuccess(state, action) {
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem('pharmai-user', JSON.stringify(state.user));
+    },
     clearError(state) {
       state.error = null;
     },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setUser, clearError } =
+export const { loginStart, loginSuccess, loginFailure, logout, setUser, updateProfileSuccess, clearError } =
   authSlice.actions;
 
 export default authSlice.reducer;

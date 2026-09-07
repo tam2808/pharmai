@@ -3,9 +3,9 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '../../utils/helpers';
 
 /**
- * Input — Component input tái sử dụng với floating label
+ * Input — Component input tái sử dụng, placeholder style (Long Châu style)
  *
- * @param {string} label - Label text
+ * @param {string} label - Placeholder text
  * @param {string} error - Error message
  * @param {string} type - Input type
  * @param {ReactNode} icon - Icon bên trái
@@ -25,14 +25,16 @@ const Input = forwardRef(function Input(
     <div className={cn('relative w-full', className)}>
       <div
         className={cn(
-          'relative flex items-center rounded-md border transition-all duration-200 bg-surface',
-          'border-border focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(11,61,46,0.1)]',
-          error && 'border-error focus-within:border-error focus-within:shadow-[0_0_0_3px_rgba(179,38,30,0.1)]'
+          'relative flex items-center rounded-xl border transition-all duration-200 bg-surface',
+          'border-border hover:border-text-muted focus-within:border-primary focus-within:shadow-[0_0_0_4px_rgba(14,165,233,0.12)]',
+          error && 'border-error focus-within:border-error focus-within:shadow-[0_0_0_4px_rgba(239,68,68,0.12)]'
         )}
       >
         {/* Icon trái */}
         {icon && (
-          <span className="pl-3 text-text-secondary shrink-0">{icon}</span>
+          <span className="pl-4 text-text-muted shrink-0">
+            {typeof icon === 'function' ? (() => { const IconComp = icon; return <IconComp size={20} />; })() : icon}
+          </span>
         )}
 
         {/* Input field */}
@@ -40,44 +42,26 @@ const Input = forwardRef(function Input(
           ref={ref}
           id={inputId}
           type={inputType}
+          placeholder={label || ''}
           className={cn(
-            'w-full bg-transparent px-3 py-4 text-text-primary text-body',
-            'outline-none placeholder-transparent peer',
-            icon && 'pl-2',
-            isPassword && 'pr-10'
+            'w-full bg-transparent px-4 py-3.5 text-text-primary text-sm sm:text-base font-medium',
+            'outline-none placeholder:text-text-muted/70',
+            icon && 'pl-3',
+            isPassword && 'pr-12'
           )}
-          placeholder=" "
           {...props}
         />
-
-        {/* Floating label */}
-        {label && (
-          <label
-            htmlFor={inputId}
-            className={cn(
-              'absolute left-3 transition-all duration-200 pointer-events-none',
-              'text-text-secondary bg-surface px-1',
-              'text-xs font-semibold -top-2.5', // floating style (default when placeholder is not shown)
-              'peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:top-4', // non-floating style (when placeholder is shown)
-              'peer-focus:text-xs peer-focus:font-semibold peer-focus:-top-2.5 peer-focus:text-primary', // focus style
-              icon && 'left-10 peer-placeholder-shown:left-10',
-              error && 'text-error peer-focus:text-error'
-            )}
-          >
-            {label}
-          </label>
-        )}
 
         {/* Password toggle */}
         {isPassword && (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 text-text-secondary hover:text-text-primary transition-colors"
+            className="absolute right-3.5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
             aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         )}
       </div>
@@ -86,7 +70,7 @@ const Input = forwardRef(function Input(
       {error && (
         <p
           id={`${inputId}-error`}
-          className="mt-1.5 text-xs text-error animate-in fade-in"
+          className="mt-1.5 text-xs text-error"
           role="alert"
         >
           {error}

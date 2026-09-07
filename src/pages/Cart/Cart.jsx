@@ -11,7 +11,7 @@ export default function Cart() {
   const items = useSelector(selectCartItems);
 
   return (
-    <PageTransition className="pb-12 bg-bg min-h-screen" style={{ paddingTop: '130px' }}>
+    <PageTransition className="py-8 bg-bg min-h-screen">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-16">
         <h1 className="text-h3 lg:text-h2 font-semibold text-text-primary mb-8">
           Giỏ hàng của bạn

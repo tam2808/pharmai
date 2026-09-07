@@ -54,6 +54,51 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> googleData) {
+        String email = googleData.get("email");
+        String name = googleData.get("name");
+
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email không hợp lệ từ Google"));
+        }
+
+        String trimmedEmail = email.trim();
+        Optional<User> userOpt = userRepository.findByEmail(trimmedEmail);
+
+        User user;
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+            // Automatically enable user if logging in via verified Google account
+            user.setEnabled(true);
+            user.setVerificationCode(null);
+            if ((user.getName() == null || user.getName().isEmpty()) && name != null) {
+                user.setName(name.trim());
+            }
+            userRepository.save(user);
+        } else {
+            user = new User();
+            user.setName(name != null && !name.trim().isEmpty() ? name.trim() : trimmedEmail.split("@")[0]);
+            user.setEmail(trimmedEmail);
+            user.setPhone("");
+            user.setPassword("GOOGLE_OAUTH_ACCOUNT");
+            user.setRole("ROLE_USER");
+            user.setEnabled(true);
+            user.setVerificationCode(null);
+            userRepository.save(user);
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("token", "springboot-jwt-token-" + user.getId() + "-" + System.currentTimeMillis());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", data);
+        response.put("message", "Đăng nhập Google thành công!");
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> userData) {
         String name = userData.get("name");
@@ -166,6 +211,71 @@ public class AuthController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Mã OTP không chính xác"));
         }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email không được để trống"));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email.trim());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Không tìm thấy tài khoản"));
+        }
+
+        User user = userOpt.get();
+        if (request.containsKey("name") && request.get("name") != null) {
+            user.setName(request.get("name").trim());
+        }
+        if (request.containsKey("phone") && request.get("phone") != null) {
+            user.setPhone(request.get("phone").trim());
+        }
+        if (request.containsKey("address") && request.get("address") != null) {
+            user.setAddress(request.get("address").trim());
+        }
+
+        userRepository.save(user);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", data);
+        response.put("message", "Cập nhật thông tin cá nhân thành công!");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+
+        if (email == null || oldPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Vui lòng nhập đầy đủ thông tin mật khẩu"));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email.trim());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Không tìm thấy tài khoản"));
+        }
+
+        User user = userOpt.get();
+        if (!user.getPassword().equals(oldPassword)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Mật khẩu hiện tại không chính xác"));
+        }
+
+        if (newPassword.length() < 6) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Mật khẩu mới phải có ít nhất 6 ký tự"));
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công! Vui lòng sử dụng mật khẩu mới cho lần đăng nhập sau."));
     }
 }
 
