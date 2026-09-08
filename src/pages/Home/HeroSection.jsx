@@ -1,236 +1,176 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Bot, ArrowRight, ChevronLeft, ChevronRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PhoneCall, HelpCircle, ShoppingCart, Sparkles, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const bannerSlides = [
   {
     id: 1,
+    productName: 'Cebraton',
+    productTagline: 'Hoạt huyết dưỡng não thế hệ mới',
+    bgGradient: 'from-emerald-50 via-emerald-100/60 to-teal-50',
     image: '/images/banner1_pro.png',
-    badge: 'Hệ Thống Dược Phẩm AI 24/7',
-    title: 'Chọn Nhà Thuốc Uy Tín - Chọn Sức Khỏe Vững Bền',
-    subtitle: '100% Thuốc chính hãng, tư vấn chuyên sâu cùng Dược sĩ & AI 24/7',
-    link: '/search',
+    badge: 'Sản Phẩm Bán Chạy',
+    subtitle: 'Hỗ trợ suy giảm trí nhớ, đau đầu, hoa mắt, chóng mặt, mất ngủ',
+    link: '/drug/1',
   },
   {
     id: 2,
+    productName: 'Paracetamol 500mg',
+    productTagline: 'Giảm đau & Hạ sốt an toàn hiệu quả',
+    bgGradient: 'from-green-50 via-emerald-50 to-emerald-100/50',
     image: '/images/banner2_pro.png',
-    badge: 'Chuẩn Y Tế openFDA',
-    title: 'Đồng Hành Cùng Bạn Trên Hành Trình Khỏe Mạnh',
-    subtitle: 'Giao hàng nhanh trong 2 giờ, bảo quản tiêu chuẩn GSP/GDP',
-    link: '/search',
+    badge: 'Chuẩn Khuyên Dùng',
+    subtitle: 'Được các bác sĩ khuyên dùng trong tủ thuốc gia đình Việt',
+    link: '/drug/2',
   },
   {
     id: 3,
+    productName: 'Amoxicillin 500mg',
+    productTagline: 'Kháng sinh chuẩn GPP đạt chuẩn Châu Âu',
+    bgGradient: 'from-emerald-100/40 via-teal-50 to-white',
     image: '/images/banner3_pro.png',
-    badge: 'Khuyến Mãi Tháng Này',
-    title: 'Sống Khỏe Mỗi Ngày - Lựa Chọn Thông Minh',
-    subtitle: 'Thực phẩm chức năng, Dược mỹ phẩm chính hãng giảm đến 30%',
-    link: '/search',
+    badge: 'Ưu Đãi Đặc Biệt',
+    subtitle: 'Chăm sóc sức khỏe toàn diện cho cả gia đình bạn',
+    link: '/drug/3',
   },
 ];
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
-  const [aiQuery, setAiQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % bannerSlides.length);
-    }, 4500);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % bannerSlides.length);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
 
-  const handleAiSubmit = (e) => {
-    e.preventDefault();
-    if (aiQuery.trim()) {
-      navigate(`/chatbot?q=${encodeURIComponent(aiQuery.trim())}`);
-    } else {
-      navigate('/chatbot');
-    }
-  };
-
   return (
-    <section className="py-5 bg-surface-hover/30 border-b border-border/40">
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-12 space-y-5">
-        
-        {/* ── 1. Full-Width Visual Hero Banner Carousel (HD & Sharp Overlay) ── */}
-        <div className="w-full relative rounded-2xl overflow-hidden shadow-sm group bg-slate-950 border border-border">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="w-full relative"
-            >
-              <Link to={bannerSlides[current].link} className="block w-full relative group">
-                <img
-                  src={bannerSlides[current].image}
-                  alt={bannerSlides[current].title}
-                  className="w-full h-[240px] sm:h-[320px] md:h-[370px] lg:h-[400px] object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Crisp Dynamic Typography Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/50 to-transparent flex items-center p-6 sm:p-10 lg:p-14">
-                  <div className="max-w-xl text-white space-y-3.5">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#ee4d2d] text-white inline-flex items-center gap-1.5 shadow-md tracking-wide uppercase">
-                      <Sparkles size={14} /> {bannerSlides[current].badge}
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display leading-tight tracking-tight drop-shadow-lg text-white">
-                      {bannerSlides[current].title}
+    <section className="py-4 bg-slate-50 border-b border-border">
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          
+          {/* ── Left 8 Cols: Main Traphaco Banner Carousel ── */}
+          <div className="lg:col-span-8 relative rounded-2xl overflow-hidden shadow-sm border border-emerald-200 bg-white group min-h-[300px] sm:min-h-[340px] flex flex-col justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+                className={`w-full h-full p-6 sm:p-10 bg-gradient-to-r ${bannerSlides[current].bgGradient} flex flex-col sm:flex-row items-center justify-between gap-6`}
+              >
+                {/* Left Text Block */}
+                <div className="space-y-3 flex-1 text-left">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-[#009640] text-white shadow-xs uppercase tracking-wider">
+                    <Sparkles size={13} />
+                    {bannerSlides[current].badge}
+                  </span>
+                  
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl font-black text-[#EE4D2D] tracking-tight font-display drop-shadow-xs">
+                      {bannerSlides[current].productName}
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed drop-shadow">
-                      {bannerSlides[current].subtitle}
+                    <p className="text-sm sm:text-base font-extrabold text-[#009640] mt-0.5">
+                      {bannerSlides[current].productTagline}
                     </p>
-                    <div className="pt-2">
-                      <span className="px-5 py-2.5 rounded-xl bg-white text-slate-950 font-extrabold text-xs sm:text-sm inline-flex items-center gap-2 shadow-lg group-hover:bg-amber-400 transition-colors">
-                        Khám phá sản phẩm <ArrowRight size={16} />
-                      </span>
-                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-600 max-w-md leading-relaxed">
+                    {bannerSlides[current].subtitle}
+                  </p>
+
+                  <div className="pt-2">
+                    <button
+                      onClick={() => navigate('/search')}
+                      className="px-6 py-2.5 rounded-full bg-[#EE4D2D] hover:bg-[#D73211] text-white font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <ShoppingCart size={15} />
+                      THÊM VÀO GIỎ
+                    </button>
                   </div>
                 </div>
-              </Link>
-            </motion.div>
-          </AnimatePresence>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={prevSlide}
-            aria-label="Previous Banner"
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer z-10"
-          >
-            <ChevronLeft size={22} />
-          </button>
-          <button
-            onClick={nextSlide}
-            aria-label="Next Banner"
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer z-10"
-          >
-            <ChevronRight size={22} />
-          </button>
-
-          {/* Pagination Dots */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-            {bannerSlides.map((s, idx) => (
-              <button
-                key={s.id}
-                onClick={() => setCurrent(idx)}
-                aria-label={`Slide ${idx + 1}`}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  current === idx ? 'w-7 bg-white' : 'w-2.5 bg-white/50'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ── 2. 3 Feature Action Cards (Matching Reference Layout) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          {/* Feature Card 1: Hỏi Dược sĩ AI 24/7 */}
-          <div className="bg-gradient-to-br from-[#0b3d2e] via-emerald-900 to-[#042f2e] text-white rounded-2xl p-5 shadow-sm border border-emerald-500/30 flex flex-col justify-between group hover:shadow-md transition-all">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-white shadow-sm shrink-0">
-                  <Bot size={24} />
+                {/* Right Product Image Block */}
+                <div className="w-48 sm:w-60 h-48 sm:h-56 relative shrink-0 flex items-center justify-center">
+                  <img
+                    src={bannerSlides[current].image}
+                    alt={bannerSlides[current].productName}
+                    className="max-w-full max-h-full object-contain filter drop-shadow-xl hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
-                <span className="text-[10px] font-bold bg-emerald-400/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-400/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Online 24/7
-                </span>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-white">Hỏi Dược Sĩ AI PharmAI</h3>
-                <p className="text-xs text-white/80 mt-1 leading-relaxed">
-                  Tư vấn triệu chứng (sốt, ho, dị ứng...), tra cứu liều dùng & tương tác thuốc tức thì.
-                </p>
-              </div>
-            </div>
+              </motion.div>
+            </AnimatePresence>
 
-            <form onSubmit={handleAiSubmit} className="mt-4 pt-3 border-t border-white/10 flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder="Nhập triệu chứng..."
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 text-xs outline-none focus:bg-white/20 focus:border-emerald-300 transition-all"
+            {/* Slider Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              aria-label="Previous Slide"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#009640] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer z-10"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={nextSlide}
+              aria-label="Next Slide"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#009640] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer z-10"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+              {bannerSlides.map((s, idx) => (
+                <button
+                  key={s.id}
+                  onClick={() => setCurrent(idx)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    current === idx ? 'w-6 bg-[#009640]' : 'w-2 bg-slate-300'
+                  }`}
                 />
-                <Sparkles size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-300" />
-              </div>
-              <button
-                type="submit"
-                className="px-3.5 py-2 rounded-xl gradient-primary text-white text-xs font-bold shadow-xs hover:opacity-95 transition-all shrink-0 cursor-pointer flex items-center gap-1"
-              >
-                Hỏi AI <ArrowRight size={13} />
-              </button>
-            </form>
-          </div>
-
-          {/* Feature Card 2: Tải Đơn Thuốc Bác Sĩ */}
-          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-5 shadow-sm border border-emerald-400/30 flex flex-col justify-between group hover:shadow-md transition-all">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 shadow-inner">
-                  <Camera size={24} />
-                </div>
-                <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full">
-                  Báo giá 5 phút
-                </span>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-white">Tải Đơn Thuốc Bác Sĩ</h3>
-                <p className="text-xs text-emerald-100 mt-1 leading-relaxed">
-                  Chụp hoặc tải ảnh đơn thuốc để Dược sĩ chuyên môn xác nhận & giao tận nhà trong 2 giờ.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between">
-              <Link to="/cart" className="text-xs font-extrabold text-white flex items-center gap-1.5 hover:underline">
-                <Camera size={14} />
-                Tải ảnh đơn thuốc ngay
-              </Link>
-              <ArrowRight size={14} className="text-emerald-200 group-hover:translate-x-1 transition-transform" />
+              ))}
             </div>
           </div>
 
-          {/* Feature Card 3: Chuẩn openFDA & Thuốc Chính Hãng */}
-          <div className="bg-gradient-to-br from-sky-700 to-blue-900 text-white rounded-2xl p-5 shadow-sm border border-sky-400/30 flex flex-col justify-between group hover:shadow-md transition-all">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 shadow-inner">
-                  <ShieldCheck size={24} />
-                </div>
-                <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full">
-                  100% Chính Hãng
-                </span>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-white">Thuốc & Y Tế Chuẩn openFDA</h3>
-                <p className="text-xs text-sky-100 mt-1 leading-relaxed">
-                  Đảm bảo nguồn gốc rõ ràng, bảo quản tiêu chuẩn GSP/GDP & tích lũy điểm thành viên.
-                </p>
-              </div>
+          {/* ── Right 4 Cols: Expert Advisory Side Widget ── */}
+          <div className="lg:col-span-4 bg-gradient-to-b from-amber-50 to-orange-50/60 rounded-2xl border border-orange-200/80 p-5 shadow-xs flex flex-col justify-between relative overflow-hidden">
+            {/* Top Ribbon Badge */}
+            <div className="bg-[#F97316] text-white py-2 px-4 rounded-xl shadow-xs flex items-center justify-center gap-2 font-black text-xs uppercase tracking-wider">
+              <HelpCircle size={17} />
+              HỎI ĐÁP CÙNG CHUYÊN GIA
             </div>
 
-            <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between">
-              <Link to="/search" className="text-xs font-extrabold text-white flex items-center gap-1.5 hover:underline">
-                Khám phá danh mục thuốc
-              </Link>
-              <ArrowRight size={14} className="text-sky-200 group-hover:translate-x-1 transition-transform" />
+            <div className="my-5 text-center space-y-3">
+              <p className="text-xs font-bold uppercase text-slate-500 tracking-wider">TƯ VẤN MIỄN PHÍ 24/7</p>
+              
+              <div className="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-black text-[#F97316] font-mono tracking-tight">
+                <PhoneCall size={26} className="animate-bounce text-[#EE4D2D]" />
+                <span>0988.888.888</span>
+              </div>
+
+              <p className="text-xs text-slate-600 px-2 leading-relaxed">
+                HOẶC trò chuyện với Dược sĩ AI để giải đáp thắc mắc về liều dùng & bệnh lý
+              </p>
             </div>
+
+            {/* CTA Button */}
+            <button
+              onClick={() => navigate('/chatbot')}
+              className="w-full py-3 bg-[#009640] hover:bg-[#007A33] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg"
+            >
+              <MessageSquare size={16} />
+              ĐẶT CÂU HỎI CHO AI DƯỢC SĨ
+            </button>
           </div>
 
         </div>
-
       </div>
     </section>
   );
 }
-
-

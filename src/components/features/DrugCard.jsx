@@ -2,37 +2,18 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
-import { ShoppingCart, FileText, Pill, Tag } from 'lucide-react';
+import { ShoppingCart, Star, Pill, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { addToCart } from '../../store/cartSlice';
 import { formatCurrency } from '../../utils/helpers';
-import Badge from '../ui/Badge';
 
 /**
- * Category → color map for pill badges
- */
-const categoryColors = {
-  'Giảm đau': { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-100' },
-  'Kháng sinh': { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
-  'Tiêu hóa': { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
-  'Vitamin': { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100' },
-  'Tim mạch': { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' },
-  'default': { bg: 'bg-sky-50', text: 'text-sky-600', border: 'border-sky-100' },
-};
-
-function getCategoryStyle(category = '') {
-  const key = Object.keys(categoryColors).find((k) => category.includes(k));
-  return categoryColors[key || 'default'];
-}
-
-/**
- * DrugCard v2 — Rounded, gradient placeholder, colored category pill, smooth hover
+ * DrugCard — Traphaco Pharmacy E-Commerce Style Card
  */
 export default function DrugCard({ drug }) {
   const dispatch = useDispatch();
   const [added, setAdded] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const catStyle = getCategoryStyle(drug.category);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -43,105 +24,96 @@ export default function DrugCard({ drug }) {
     setTimeout(() => setAdded(false), 1500);
   };
 
+  // Fake original price (+30%) for strikethrough effect like in reference image
+  const originalPrice = Math.round((drug.price * 1.33) / 1000) * 1000;
+
   return (
-    <Link to={`/drug/${drug.id}`} className="block group h-full">
+    <Link to={`/drug/${drug.id}`} className="block group h-full select-none">
       <motion.div
-        whileHover={{ y: -5, boxShadow: 'var(--shadow-hover)' }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative bg-white border border-border/60 rounded-2xl p-4 pb-6 flex flex-col h-full shadow-xs"
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.2 }}
+        className="relative bg-white border border-slate-200 rounded-xl p-3.5 flex flex-col h-full shadow-2xs hover:shadow-md transition-all overflow-hidden"
       >
-        {/* Top gradient bar accent — clipped inside rounded-t-2xl */}
-        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-full h-full gradient-primary" />
+        {/* Top Discount Tag */}
+        <div className="absolute top-2.5 left-2.5 z-10">
+          <span className="px-2 py-0.5 bg-[#EE4D2D] text-white text-[10px] font-black rounded-full shadow-xs flex items-center gap-0.5 uppercase tracking-wide">
+            Giảm -25%
+          </span>
         </div>
 
-        {/* Drug Image or Placeholder */}
-        <div className="relative w-full aspect-square bg-gradient-to-br from-primary-lighter to-primary-light rounded-xl overflow-hidden mb-4 flex items-center justify-center border border-primary/10 group-hover:border-primary/20 transition-colors p-3 shrink-0">
-          {/* Prescription Badge */}
-          {drug.requiresPrescription && (
-            <div className="absolute top-2.5 right-2.5 z-10">
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 border border-amber-200 rounded-lg text-[10px] font-semibold text-amber-700 shadow-xs">
-                <FileText size={10} />
-                Kê đơn
-              </span>
-            </div>
-          )}
-
+        {/* Product Image */}
+        <div className="relative w-full aspect-square bg-slate-50 rounded-lg overflow-hidden mb-3 flex items-center justify-center p-3 border border-slate-100 group-hover:bg-emerald-50/30 transition-colors">
           {drug.image && !imgError ? (
             <img
               src={drug.image}
               alt={drug.name}
               onError={() => setImgError(true)}
-              className="max-w-[85%] max-h-[85%] object-contain group-hover:scale-105 transition-transform duration-300"
+              className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <>
-              {/* Decorative bg circles */}
-              <div className="absolute inset-0">
-                <div className="absolute top-2 left-2 w-10 h-10 rounded-full bg-primary/5" />
-                <div className="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-accent/8" />
+            <div className="flex flex-col items-center gap-1 text-[#009640]">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100/60 flex items-center justify-center">
+                <Pill size={24} />
               </div>
-
-              {/* Pill icon */}
-              <div className="relative flex flex-col items-center gap-2">
-                <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
-                  <Pill size={26} className="text-white" strokeWidth={1.8} />
-                </div>
-                <span className="text-[10px] font-semibold text-primary/60 bg-white/80 px-2.5 py-1 rounded-full border border-primary/10">
-                  {drug.form || 'Thuốc'}
-                </span>
-              </div>
-            </>
+              <span className="text-[10px] font-bold text-slate-400">{drug.form || 'Dược phẩm'}</span>
+            </div>
           )}
         </div>
 
-        {/* Drug Info */}
-        <div className="flex-1 flex flex-col">
-          {/* Category pill */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${catStyle.bg} ${catStyle.text} ${catStyle.border}`}>
-              <Tag size={8} />
-              {drug.category || 'Dược phẩm'}
-            </span>
+        {/* Product Details */}
+        <div className="flex-1 flex flex-col justify-between space-y-1.5">
+          <div>
+            {/* Title (Uppercase Bold) */}
+            <h3 className="font-extrabold text-slate-800 text-xs sm:text-sm uppercase tracking-tight line-clamp-1 group-hover:text-[#009640] transition-colors">
+              {drug.name}
+            </h3>
+
+            {/* Description Subtitle */}
+            <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">
+              {drug.description || drug.activeIngredient || 'Bổ khí huyết, tăng cường sức khỏe toàn diện'}
+            </p>
+
+            {/* Rating Stars */}
+            <div className="flex items-center gap-0.5 mt-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
+              ))}
+              <span className="text-[10px] text-slate-400 ml-1">(5.0)</span>
+            </div>
           </div>
 
-          {/* Name */}
-          <h3 className="font-bold text-text-primary text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-200 mb-1">
-            {drug.name}
-          </h3>
-
-          {/* Active ingredient */}
-          {drug.activeIngredient && (
-            <p className="text-[11px] text-text-muted font-mono line-clamp-1 mt-0.5">
-              {drug.activeIngredient}
-            </p>
-          )}
-
-          {/* Price + Add to cart */}
-          <div className="mt-auto pt-3.5 flex items-center justify-between border-t border-border/40 mt-3 shrink-0">
-            <div className="pl-0.5">
-              <span className="text-base font-extrabold text-primary">
+          {/* Price & Add to Cart */}
+          <div className="pt-2 border-t border-slate-100 space-y-2">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs text-slate-400 line-through font-mono">
+                {formatCurrency(originalPrice)}
+              </span>
+              <span className="text-sm sm:text-base font-extrabold text-[#009640] font-mono">
                 {formatCurrency(drug.price)}
               </span>
-              {drug.unit && (
-                <span className="text-[10px] text-text-muted ml-1">/ {drug.unit}</span>
-              )}
             </div>
 
-            {/* Add to cart button */}
-            <motion.button
+            {/* Button full-width */}
+            <button
               onClick={handleAddToCart}
-              whileTap={{ scale: 0.9 }}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200 ${
+              className={`w-full py-2 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
                 added
-                  ? 'bg-accent text-white'
-                  : 'gradient-primary text-white opacity-0 group-hover:opacity-100'
-              } shadow-sm`}
-              aria-label={`Thêm ${drug.name} vào giỏ hàng`}
+                  ? 'bg-emerald-700 text-white'
+                  : 'bg-[#009640] hover:bg-[#007A33] text-white'
+              }`}
             >
-              <ShoppingCart size={12} />
-              {added ? 'Đã thêm!' : 'Thêm'}
-            </motion.button>
+              {added ? (
+                <>
+                  <Check size={13} />
+                  ĐÃ THÊM
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={13} />
+                  XEM CHI TIẾT
+                </>
+              )}
+            </button>
           </div>
         </div>
       </motion.div>

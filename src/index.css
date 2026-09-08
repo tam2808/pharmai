@@ -10,31 +10,31 @@
    1. DESIGN TOKENS — CSS Custom Properties
    ============================================================ */
 :root {
-  /* --- Primary Palette: Sky Blue Medical --- */
-  --color-bg: #F0F9FF;                 /* Xanh trời nhạt, sáng, y tế */
-  --color-bg-alt: #FFFFFF;             /* Trắng tinh khiết */
+  /* --- Primary Palette: Traphaco Emerald Green Pharmacy --- */
+  --color-bg: #F8FAFC;                 /* Soft neutral grey background */
+  --color-bg-alt: #FFFFFF;             /* Pure white */
   --color-surface: #FFFFFF;
-  --color-surface-muted: #F8FAFB;
+  --color-surface-muted: #F1F5F9;
 
-  --color-primary: #0EA5E9;            /* Sky Blue 500 */
-  --color-primary-dark: #0284C7;       /* Sky Blue 600 */
-  --color-primary-darker: #0369A1;     /* Sky Blue 700 */
-  --color-primary-light: #E0F2FE;      /* Sky Blue 100 */
-  --color-primary-lighter: #F0F9FF;    /* Sky Blue 50 */
-  --color-primary-hover: #0284C7;
+  --color-primary: #009640;            /* Traphaco Brand Emerald Green */
+  --color-primary-dark: #007A33;       /* Dark Green */
+  --color-primary-darker: #005C26;     /* Deep Forest Green */
+  --color-primary-light: #E6F7ED;      /* Soft Mint Green */
+  --color-primary-lighter: #F0FAF4;    /* Lightest Green Tint */
+  --color-primary-hover: #007A33;
 
-  /* --- Accent: Emerald Green --- */
-  --color-accent: #10B981;             /* Emerald 500 */
-  --color-accent-dark: #059669;        /* Emerald 600 */
-  --color-accent-light: #D1FAE5;       /* Emerald 100 */
-  --color-accent-hover: #059669;
+  /* --- Accent: Crimson & Advisory Orange --- */
+  --color-accent: #EE4D2D;             /* Highlight Red/Orange Badge */
+  --color-accent-dark: #D73211;
+  --color-accent-light: #FFF1F0;
+  --color-accent-hover: #D73211;
 
-  /* --- Tertiary: Violet (CTA) --- */
-  --color-violet: #8B5CF6;
-  --color-violet-light: #EDE9FE;
+  /* --- Secondary & Advisory Highlights --- */
+  --color-orange-advisory: #F97316;
+  --color-orange-light: #FFF7ED;
 
   /* --- Neutral Grays --- */
-  --color-text-primary: #0F172A;       /* Slate 900 */
+  --color-text-primary: #1E293B;       /* Slate 800 */
   --color-text-secondary: #475569;     /* Slate 600 */
   --color-text-muted: #94A3B8;         /* Slate 400 */
   --color-border: #E2E8F0;             /* Slate 200 */
@@ -42,25 +42,24 @@
 
   /* --- Status --- */
   --color-error: #EF4444;
-  --color-success: #10B981;
+  --color-success: #009640;
   --color-warning: #F59E0B;
 
   /* --- Gradients --- */
-  --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%);
-  --gradient-hero: linear-gradient(135deg, #EFF6FF 0%, #E0F2FE 40%, #ECFDF5 100%);
-  --gradient-cta: linear-gradient(135deg, #0EA5E9 0%, #6366F1 50%, #8B5CF6 100%);
-  --gradient-card-blue: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-  --gradient-card-green: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-  --gradient-card-violet: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
-  --gradient-card-orange: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+  --gradient-primary: linear-gradient(135deg, #009640 0%, #007A33 100%);
+  --gradient-hero: linear-gradient(135deg, #F0FAF4 0%, #E6F7ED 40%, #FFFFFF 100%);
+  --gradient-cta: linear-gradient(135deg, #009640 0%, #059669 100%);
+  --gradient-card-green: linear-gradient(135deg, #009640 0%, #059669 100%);
+  --gradient-card-orange: linear-gradient(135deg, #EE4D2D 0%, #EA580C 100%);
+  --gradient-card-blue: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
 
-  /* --- Shadows (Elevated, Modern) --- */
-  --shadow-xs: 0 1px 3px rgba(14, 165, 233, 0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-card: 0 4px 6px -1px rgba(14, 165, 233, 0.06), 0 2px 4px -1px rgba(0,0,0,0.04);
-  --shadow-hover: 0 10px 25px -5px rgba(14, 165, 233, 0.15), 0 4px 10px -3px rgba(14, 165, 233, 0.08);
+  /* --- Shadows --- */
+  --shadow-xs: 0 1px 3px rgba(0, 150, 64, 0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card: 0 4px 6px -1px rgba(0, 150, 64, 0.06), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-hover: 0 10px 25px -5px rgba(0, 150, 64, 0.18), 0 4px 10px -3px rgba(0, 150, 64, 0.1);
   --shadow-modal: 0 25px 50px -12px rgba(0,0,0,0.15);
-  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.25);
-  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
+  --shadow-glow: 0 0 20px rgba(0, 150, 64, 0.25);
+  --shadow-glow-green: 0 0 20px rgba(0, 150, 64, 0.3);
 
   /* --- Typography --- */
   --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
@@ -68,11 +67,11 @@
   --font-mono: 'IBM Plex Mono', monospace;
 
   /* --- Border Radius --- */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
   --radius-full: 9999px;
 }
 
