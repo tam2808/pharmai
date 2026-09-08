@@ -38,7 +38,46 @@ export const updateOrderStatus = async (id, status) => {
   return response.data;
 };
 
+export const deleteOrder = async (id) => {
+  const response = await axiosClient.delete(`/orders/${id}`);
+  return response.data;
+};
+
 export const getRevenueReport = async () => {
   const response = await axiosClient.get('/orders/revenue');
+  return response.data;
+};
+
+// ============================================================
+// Customer & Account Admin APIs
+// ============================================================
+
+export const getAllCustomers = async (params = {}) => {
+  const response = await axiosClient.get('/admin/users', { params });
+  return response.data;
+};
+
+export const createCustomer = async (userData) => {
+  const response = await axiosClient.post('/admin/users', userData);
+  return response.data;
+};
+
+export const updateCustomer = async (id, userData) => {
+  const response = await axiosClient.put(`/admin/users/${id}`, userData);
+  return response.data;
+};
+
+export const toggleCustomerStatus = async (id) => {
+  const response = await axiosClient.put(`/admin/users/${id}/toggle-status`);
+  return response.data;
+};
+
+export const resetCustomerPassword = async (id, newPassword) => {
+  const response = await axiosClient.put(`/admin/users/${id}/reset-password`, { newPassword });
+  return response.data;
+};
+
+export const deleteCustomer = async (id) => {
+  const response = await axiosClient.delete(`/admin/users/${id}`);
   return response.data;
 };

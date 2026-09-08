@@ -25,6 +25,7 @@ const Profile = lazy(() => import('../pages/Profile/Profile'));
 const Dashboard = lazy(() => import('../pages/Admin/Dashboard'));
 const ManageDrugs = lazy(() => import('../pages/Admin/ManageDrugs'));
 const ManageOrders = lazy(() => import('../pages/Admin/ManageOrders'));
+const ManageCustomers = lazy(() => import('../pages/Admin/ManageCustomers'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -107,6 +108,7 @@ export default function AppRouter() {
             <Route index element={<Dashboard />} />
             <Route path="drugs" element={<ManageDrugs />} />
             <Route path="orders" element={<ManageOrders />} />
+            <Route path="customers" element={<ManageCustomers />} />
           </Route>
         </Routes>
       </Suspense>

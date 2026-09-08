@@ -96,45 +96,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Prescription Upload Fast Banner */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-12 mb-10">
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md relative overflow-hidden">
-          {/* Decorative Image */}
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-25 pointer-events-none hidden md:block">
-            <img src="/images/prescription_banner.png" alt="Prescription Banner" className="w-full h-full object-cover object-right" />
-          </div>
-
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 shadow-inner">
-              <Camera size={28} />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider">Hỗ trợ đọc đơn thuốc</span>
-              <h3 className="text-lg sm:text-xl font-extrabold text-white mt-0.5">
-                Bạn có đơn thuốc của bác sĩ?
-              </h3>
-              <p className="text-xs text-white/90 mt-0.5">
-                Tải ảnh đơn để Dược sĩ báo giá và giao tận nơi trong 2 giờ.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 shrink-0 relative z-10">
-            <Link to="/cart">
-              <Button variant="secondary" className="gap-2 text-xs sm:text-sm font-extrabold py-3 px-5 bg-white text-emerald-800 hover:bg-slate-100 shadow-md">
-                <Camera size={16} />
-                Tải ảnh đơn ngay
-              </Button>
-            </Link>
-            <a href="tel:18006868">
-              <Button variant="outline" className="gap-2 text-xs sm:text-sm font-bold py-3 px-4 border-white/40 text-white hover:bg-white/10">
-                <PhoneCall size={16} />
-                1800-6868
-              </Button>
-            </a>
-          </div>
-        </div>
-      </section>
 
       {/* 4. Featured Drugs Showcase */}
       <section className="max-w-[1280px] mx-auto px-5 lg:px-12 py-4">

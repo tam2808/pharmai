@@ -74,124 +74,138 @@ export default function Register() {
   return (
     <PageTransition>
       <AuthLayout activeTab="register">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-          
-          {apiError && (
-            <div className="p-3 bg-rose-500/20 border border-rose-500/30 text-rose-200 rounded-xl flex items-start gap-2.5 text-xs animate-in fade-in">
-              <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <span>{apiError}</span>
-            </div>
-          )}
+        {/* Header Title */}
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-xl sm:text-2xl font-medium text-slate-800 tracking-tight">
+            Đăng ký
+          </h1>
+        </div>
 
+        {apiError && (
+          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-600 rounded-sm flex items-start gap-2 text-xs animate-in fade-in">
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <span>{apiError}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
           {/* Full Name */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <User size={13} className="text-amber-400" />
-              FULL NAME
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <User size={13} className="text-[#ee4d2d]" />
+              HỌ VÀ TÊN
             </label>
             <input
               type="text"
               placeholder="Nguyễn Văn A"
-              className={`w-full px-4 py-3 bg-white/10 border ${
-                errors.name ? 'border-rose-400' : 'border-white/20'
-              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              className={`w-full px-3.5 py-2.5 bg-white border ${
+                errors.name ? 'border-rose-500' : 'border-slate-300'
+              } rounded-sm text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-slate-500 transition-colors`}
               {...register('name')}
             />
-            {errors.name && <span className="text-[10px] text-rose-300 font-medium">{errors.name.message}</span>}
+            {errors.name && <span className="text-[11px] text-rose-500 font-medium block">{errors.name.message}</span>}
           </div>
 
           {/* Email */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Mail size={13} className="text-amber-400" />
-              EMAIL ADDRESS
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Mail size={13} className="text-[#ee4d2d]" />
+              ĐỊA CHỈ EMAIL
             </label>
             <input
               type="email"
               placeholder="email@example.com"
-              className={`w-full px-4 py-3 bg-white/10 border ${
-                errors.email ? 'border-rose-400' : 'border-white/20'
-              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              className={`w-full px-3.5 py-2.5 bg-white border ${
+                errors.email ? 'border-rose-500' : 'border-slate-300'
+              } rounded-sm text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-slate-500 transition-colors`}
               {...register('email')}
             />
-            {errors.email && <span className="text-[10px] text-rose-300 font-medium">{errors.email.message}</span>}
+            {errors.email && <span className="text-[11px] text-rose-500 font-medium block">{errors.email.message}</span>}
           </div>
 
           {/* Phone */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Phone size={13} className="text-amber-400" />
-              PHONE NUMBER
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Phone size={13} className="text-[#ee4d2d]" />
+              SỐ ĐIỆN THOẠI
             </label>
             <input
               type="tel"
               placeholder="0901234567"
-              className={`w-full px-4 py-3 bg-white/10 border ${
-                errors.phone ? 'border-rose-400' : 'border-white/20'
-              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              className={`w-full px-3.5 py-2.5 bg-white border ${
+                errors.phone ? 'border-rose-500' : 'border-slate-300'
+              } rounded-sm text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-slate-500 transition-colors`}
               {...register('phone')}
             />
-            {errors.phone && <span className="text-[10px] text-rose-300 font-medium">{errors.phone.message}</span>}
+            {errors.phone && <span className="text-[11px] text-rose-500 font-medium block">{errors.phone.message}</span>}
           </div>
 
           {/* Password */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Lock size={13} className="text-amber-400" />
-              PASSWORD
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock size={13} className="text-[#ee4d2d]" />
+              MẬT KHẨU
             </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                className={`w-full px-4 py-3 pr-10 bg-white/10 border ${
-                  errors.password ? 'border-rose-400' : 'border-white/20'
-                } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+                placeholder="Mật khẩu"
+                className={`w-full px-3.5 py-2.5 pr-10 bg-white border ${
+                  errors.password ? 'border-rose-500' : 'border-slate-300'
+                } rounded-sm text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-slate-500 transition-colors`}
                 {...register('password')}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
-            {errors.password && <span className="text-[10px] text-rose-300 font-medium">{errors.password.message}</span>}
+            {errors.password && <span className="text-[11px] text-rose-500 font-medium block">{errors.password.message}</span>}
           </div>
 
           {/* Confirm Password */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Lock size={13} className="text-amber-400" />
-              CONFIRM PASSWORD
+            <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock size={13} className="text-[#ee4d2d]" />
+              XÁC NHẬN MẬT KHẨU
             </label>
             <input
               type="password"
-              placeholder="••••••••"
-              className={`w-full px-4 py-3 bg-white/10 border ${
-                errors.confirmPassword ? 'border-rose-400' : 'border-white/20'
-              } rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white/15 transition-all`}
+              placeholder="Xác nhận mật khẩu"
+              className={`w-full px-3.5 py-2.5 bg-white border ${
+                errors.confirmPassword ? 'border-rose-500' : 'border-slate-300'
+              } rounded-sm text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-slate-500 transition-colors`}
               {...register('confirmPassword')}
             />
             {errors.confirmPassword && (
-              <span className="text-[10px] text-rose-300 font-medium">{errors.confirmPassword.message}</span>
+              <span className="text-[11px] text-rose-500 font-medium block">{errors.confirmPassword.message}</span>
             )}
           </div>
 
           {/* Submit Button */}
-          <div className="pt-3">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+              className="w-full py-3 bg-[#ee4d2d] hover:bg-[#d73211] text-white font-medium text-sm rounded-sm uppercase tracking-wide shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
-              {submitting ? 'Processing...' : 'SIGN UP'}
+              {submitting ? 'ĐANG XỬ LÝ...' : 'ĐĂNG KÝ'}
             </button>
           </div>
-
         </form>
+
+        {/* Footer Navigation Link */}
+        <div className="text-center mt-5 pt-4 border-t border-slate-100 text-sm text-slate-500">
+          Bạn đã có tài khoản?{' '}
+          <Link to="/login" className="text-[#ee4d2d] font-medium hover:underline">
+            Đăng nhập
+          </Link>
+        </div>
       </AuthLayout>
     </PageTransition>
   );
 }
+

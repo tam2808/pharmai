@@ -64,3 +64,12 @@ export const updateOrderStatus = async (orderId, status) => {
   const response = await axiosClient.put(`/orders/${orderId}/status`, { status });
   return response.data;
 };
+
+/**
+ * Hủy & xóa đơn hàng khỏi hệ thống
+ */
+export const deleteOrder = async (orderId) => {
+  const response = await axiosClient.delete(`/orders/${orderId}`);
+  return response.data;
+};
+

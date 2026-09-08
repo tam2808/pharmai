@@ -163,6 +163,23 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteOrder(@PathVariable("id") String id) {
+        Order existing = orderRepository.findById(java.util.Objects.requireNonNull(id)).orElse(null);
+        if (existing != null) {
+            if (existing.getOrderItems() != null && !existing.getOrderItems().isEmpty()) {
+                orderItemRepository.deleteAll(existing.getOrderItems());
+                orderItemRepository.flush();
+            }
+            orderRepository.delete(existing);
+            orderRepository.flush();
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Đã hủy đơn hàng thành công");
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/revenue")
     public ResponseEntity<?> getRevenueReport() {
         List<Order> orders = orderRepository.findAll();

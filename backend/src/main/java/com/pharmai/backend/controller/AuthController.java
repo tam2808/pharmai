@@ -72,6 +72,9 @@ public class AuthController {
             // Automatically enable user if logging in via verified Google account
             user.setEnabled(true);
             user.setVerificationCode(null);
+            if (trimmedEmail.equalsIgnoreCase("admin@pharmai.com") || trimmedEmail.equalsIgnoreCase("admin@gmail.com")) {
+                user.setRole("ROLE_ADMIN");
+            }
             if ((user.getName() == null || user.getName().isEmpty()) && name != null) {
                 user.setName(name.trim());
             }
@@ -82,7 +85,11 @@ public class AuthController {
             user.setEmail(trimmedEmail);
             user.setPhone("");
             user.setPassword("GOOGLE_OAUTH_ACCOUNT");
-            user.setRole("ROLE_USER");
+            if (trimmedEmail.equalsIgnoreCase("admin@pharmai.com") || trimmedEmail.equalsIgnoreCase("admin@gmail.com")) {
+                user.setRole("ROLE_ADMIN");
+            } else {
+                user.setRole("ROLE_USER");
+            }
             user.setEnabled(true);
             user.setVerificationCode(null);
             userRepository.save(user);

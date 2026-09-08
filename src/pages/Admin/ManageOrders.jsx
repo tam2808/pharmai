@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronDown, ChevronLeft, ChevronRight, Eye, X, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, Eye, X, Clock, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getAllOrders, updateOrderStatus } from '../../services/adminApi';
+import { getAllOrders, updateOrderStatus, deleteOrder } from '../../services/adminApi';
 import { formatCurrency } from '../../utils/helpers';
 
 const STATUS_OPTIONS = [
@@ -182,12 +182,32 @@ export default function ManageOrders() {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <button
-                      onClick={() => setDetailOrder(order)}
-                      className="p-2 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-light transition-colors"
-                    >
-                      <Eye size={14} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setDetailOrder(order)}
+                        title="Xem chi tiết"
+                        className="p-2 rounded-lg text-text-secondary hover:text-primary hover:bg-primary-light transition-colors"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm(`Xác nhận hủy và xóa đơn hàng #${order.id}?`)) {
+                            try {
+                              await deleteOrder(order.id);
+                              toast.success(`Đã xóa đơn hàng #${order.id}`);
+                              setOrders((prev) => prev.filter((o) => o.id !== order.id));
+                            } catch {
+                              toast.error('Lỗi khi xóa đơn hàng');
+                            }
+                          }
+                        }}
+                        title="Hủy & Xóa đơn"
+                        className="p-2 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))

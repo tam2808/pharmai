@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Send, Sparkles, Pill, AlertCircle, ShoppingCart } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -68,6 +68,9 @@ function generateSmartResponse(query) {
 
 export default function Chatbot() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q');
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -79,9 +82,27 @@ export default function Chatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const listRef = useRef(null);
 
+  const initialHandledRef = useRef(false);
+
+  // Ensure window starts at the top when entering Chatbot page
   useEffect(() => {
-    listRef.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim() && !initialHandledRef.current) {
+      initialHandledRef.current = true;
+      handleSend(initialQuery.trim());
+    }
+  }, [initialQuery]);
+
+  // Scroll ONLY the inner message container to bottom (NEVER scroll the browser window)
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
   }, [messages, isTyping]);
+
 
   function handleSend(queryText) {
     const textToSend = queryText || input;
@@ -92,7 +113,6 @@ export default function Chatbot() {
     if (!queryText) setInput('');
     setIsTyping(true);
 
-    // Try calling RAG API endpoint, with robust smart fallback
     axios
       .post('http://localhost:5000/api/chat', { message: textToSend }, { timeout: 2500 })
       .then((res) => {
@@ -108,7 +128,6 @@ export default function Chatbot() {
         setMessages((m) => [...m, botMsg]);
       })
       .catch(() => {
-        // Smart AI response fallback without technical error stacktrace
         setTimeout(() => {
           setIsTyping(false);
           const aiData = generateSmartResponse(textToSend);
@@ -129,23 +148,33 @@ export default function Chatbot() {
   };
 
   return (
-    <main className="min-h-screen bg-background pb-16 pt-4">
-      <div className="max-w-[960px] mx-auto px-4 sm:px-6">
+    <main className="min-h-screen bg-background pb-10 pt-2 sm:pt-3">
+      <div className="max-w-[1020px] mx-auto px-4 sm:px-6">
         
-        {/* Header Title */}
-        <div className="mb-6 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-2">
-            <Bot size={15} />
-            AI Pharmacist Assistant 24/7
+        {/* Compact Header Title positioned right at top */}
+        <div className="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl gradient-primary text-white flex items-center justify-center shrink-0 shadow-md">
+              <Bot size={22} />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-text-primary flex items-center gap-2">
+                Hỏi đáp sức khỏe & <span className="gradient-text">Dược sĩ AI</span>
+              </h1>
+              <p className="text-xs text-text-muted">Tư vấn triệu chứng, liều dùng & tương tác thuốc 24/7</p>
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-text-primary">
-            Hỏi đáp sức khỏe & <span className="gradient-text">Tư vấn Dược sĩ AI</span>
-          </h1>
+
+          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5 shadow-xs shrink-0 self-start sm:self-center">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            AI Pharmacist Online 24/7
+          </span>
         </div>
 
-        {/* Chat Box Container */}
+        {/* Chat Box Container Positioned High Up */}
         <Card className="p-0 overflow-hidden shadow-card border border-border rounded-3xl">
-          <div className="h-[60vh] sm:h-[65vh] flex flex-col bg-surface">
+          <div className="h-[480px] sm:h-[520px] max-h-[60vh] flex flex-col bg-surface">
+
             
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4" ref={listRef}>

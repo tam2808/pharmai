@@ -33,10 +33,11 @@ import {
   Store,
   CreditCard,
   ShoppingBag,
+  Trash2,
 } from 'lucide-react';
 import { updateProfileSuccess } from '../../store/authSlice';
 import { updateProfile, changePassword } from '../../services/authApi';
-import { getMyOrders, trackOrder, updateOrderStatus } from '../../services/orderApi';
+import { getMyOrders, trackOrder, updateOrderStatus, deleteOrder } from '../../services/orderApi';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import PageTransition from '../../components/layout/PageTransition';
@@ -130,6 +131,27 @@ export default function Profile() {
   const [orderFilter, setOrderFilter] = useState('all');
   const [searchOrderId, setSearchOrderId] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const [deletingOrder, setDeletingOrder] = useState(false);
+
+  const handleConfirmCancelDelete = async () => {
+    if (!orderToDelete) return;
+    setDeletingOrder(true);
+    const targetId = orderToDelete.id;
+    try {
+      await deleteOrder(targetId);
+      toast.success(`Đã hủy đơn hàng #${targetId} thành công!`);
+      setOrders((prev) => prev.filter((o) => o.id !== targetId));
+      setOrderToDelete(null);
+      fetchUserOrders();
+    } catch (err) {
+      console.error('Delete order error:', err);
+      const msg = err.response?.data?.message || 'Không thể hủy đơn hàng. Vui lòng thử lại sau!';
+      toast.error(msg);
+    } finally {
+      setDeletingOrder(false);
+    }
+  };
 
   // Change password state
   const [changingPass, setChangingPass] = useState(false);
@@ -751,20 +773,29 @@ export default function Profile() {
                             </span>
                           </div>
 
-                          {/* Right Aligned Action Buttons */}
-                          <div className="flex items-center justify-end gap-3">
+                          {/* Right Aligned Action Buttons (Non-overlapping flex wrap) */}
+                          <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3">
+                            {/* Hủy & Xóa Đơn Hàng */}
                             <button
-                              onClick={() => navigate('/search')}
-                              className="px-7 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold gradient-primary text-white hover:opacity-95 transition-all cursor-pointer shadow-xs"
+                              onClick={() => setOrderToDelete(ord)}
+                              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
                             >
-                              Mua Lại
+                              <Trash2 size={15} />
+                              <span>Hủy Đơn Hàng</span>
                             </button>
 
                             <button
                               onClick={() => setSelectedOrder(ord)}
-                              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-border text-text-primary hover:border-primary hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
+                              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-border text-text-primary hover:border-primary hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer shrink-0"
                             >
                               Theo Dõi Đơn
+                            </button>
+
+                            <button
+                              onClick={() => navigate('/search')}
+                              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold gradient-primary text-white hover:opacity-95 transition-all cursor-pointer shadow-xs shrink-0"
+                            >
+                              Mua Lại
                             </button>
 
                             {(user?.role === 'ROLE_ADMIN' || user?.email?.includes('admin')) && (ord.status === 'pending_verification' || ord.status === 'pending') && (
@@ -778,7 +809,7 @@ export default function Profile() {
                                     toast.error('Lỗi khi duyệt đơn');
                                   }
                                 }}
-                                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer shadow-xs"
+                                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer shadow-xs shrink-0"
                               >
                                 Duyệt CK (Admin)
                               </button>
@@ -947,6 +978,53 @@ export default function Profile() {
             </motion.div>
           )}
 
+        </AnimatePresence>
+
+        {/* Confirmation Modal for Cancelling & Deleting Order */}
+        <AnimatePresence>
+          {orderToDelete && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl text-slate-800 space-y-4 border border-slate-200"
+              >
+                <div className="flex items-center gap-3 text-rose-600 pb-2 border-b border-slate-100">
+                  <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                    <Trash2 size={20} className="text-rose-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900">Xác nhận Hủy Đơn Hàng</h3>
+                    <p className="text-xs text-slate-500 font-mono">Mã đơn: #{orderToDelete.id}</p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Bạn có chắc chắn muốn hủy đơn hàng này không? Sau khi xác nhận, đơn hàng <strong className="text-slate-900 font-mono">#{orderToDelete.id}</strong> sẽ bị hủy.
+                </p>
+
+                <div className="flex items-center justify-end gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setOrderToDelete(null)}
+                    disabled={deletingOrder}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    Bỏ qua
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmCancelDelete}
+                    disabled={deletingOrder}
+                    className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    {deletingOrder ? 'Đang hủy...' : 'Xác nhận Hủy'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </AnimatePresence>
 
       </div>

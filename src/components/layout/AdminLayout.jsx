@@ -11,6 +11,7 @@ import {
   X,
   ChevronRight,
   User,
+  Users,
   Home,
 } from 'lucide-react';
 import { logout } from '../../store/authSlice';
@@ -20,6 +21,7 @@ const navItems = [
   { to: '/admin', label: 'Tổng quan', icon: LayoutDashboard, end: true },
   { to: '/admin/drugs', label: 'Quản lý thuốc', icon: Pill },
   { to: '/admin/orders', label: 'Quản lý đơn hàng', icon: ShoppingBag },
+  { to: '/admin/customers', label: 'Quản lý khách hàng', icon: Users },
 ];
 
 export default function AdminLayout() {
